@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: flight-logger backend
+  liquibase:
+    change-log: classpath:db/changelog-master.yaml
