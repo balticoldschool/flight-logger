@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251208_001
+      author: christopher
+      comment: create airline table
+      changes:
+        - createTable:
+            tableName: airline
+            columns:
+
+              # ICAO Code
+              - column:
+                  name: icao_code
+                  type: varchar(3)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_airline
+                    minlength: 3
+                    maxlength: 3
+
+              # IATA Code
+              - column:
+                  name: iata_code
+                  type: varchar(2)
+                  constraints:
+                    unique: true
+                    minlength: 2
+                    maxlength: 2
+
+              # Name
+              - column:
+                  name: name
+                  type: varchar(127)
+                  constraints:
+                    nullable: false
+
+              # Image Link
+              - column:
+                  name: image_link
+                  type: varchar(255)
+
+        # rollback
+        - rollback: drop table airline if exists
