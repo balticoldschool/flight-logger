@@ -4,5 +4,17 @@ server:
 spring:
   application:
     name: flight-logger backend
+
+  #Liquibase Configuration
   liquibase:
     change-log: classpath:db/changelog-master.yaml
+
+  #JPA Configuration
+  jpa:
+    open-in-view: false #Closes Hibernate session early - prevent hidden DB access
+    properties:
+      hibernate:
+        format_sql: true #Optimize readability of SQL queries
+        jdbc.time_zone: UTC #Converts timestamps to UTC - avoids time zone issues
+    hibernate:
+      ddl-auto: validate #Validate schema matches while startup
