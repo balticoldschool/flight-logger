@@ -1,0 +1,33 @@
+---
+
+type: object
+required:
+  - icao
+  - iata
+  - name
+  - imageLink
+properties:
+  icao:
+    type: string
+    description: ICAO code of the airline
+    example: "DLH"
+    minLength: 3
+    maxLength: 3
+  iata:
+    type: string
+    description: IATA code of the airline
+    example: "LH"
+    minLength: 2
+    maxLength: 2
+  name:
+    type: string
+    description: Name of the airline
+    example: "Deutsche Lufthansa"
+    maxLength: 127
+    minLength: 1
+  imageLink:
+    type: string
+    description: Link to the airline's logo
+    example: "https://www.foo.de/logo.png"
+    maxLength: 255
+    nullable: true

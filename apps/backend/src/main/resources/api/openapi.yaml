@@ -1,0 +1,14 @@
+openapi: 3.0.3
+
+info:
+  title: Flight Logger API
+  version: 0.0.1
+  description: A simple server to log commercial flights
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+
+paths:
+  /airlines:
+    $ref: './paths/airlines.yaml'

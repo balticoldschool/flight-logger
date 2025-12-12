@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.8"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.openapi.generator") version "7.17.0"
 }
 
 group = "com.flightlogger"
@@ -49,4 +50,33 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+openApiGenerate {
+    generatorName.set("spring")
+    inputSpec.set("$rootDir/src/main/resources/api/openapi.yaml")
+    outputDir.set("$buildDir/generated/api")
+    apiPackage.set("com.flightlogger.backend")
+    modelPackage.set("com.flightlogger.backend.model")
+
+    configOptions.set(mapOf(
+        "interfaceOnly" to "true",
+        "generateModels" to "true",
+        "useTags" to "true",
+        "dateLibrary" to "java8",
+        "useSpringBoot3" to "true"
+    ))
+}
+
+openApiValidate {
+    inputSpec = "$rootDir/src/main/resources/api/openapi.yaml"
+    recommend = true
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("${layout.buildDirectory}/generated/src/main/java")
+        }
+    }
 }
