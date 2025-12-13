@@ -37,14 +37,19 @@ dependencies {
     // Liquibase
     implementation("org.liquibase:liquibase-core")
 
+    // OpenAPI Generator
+    implementation("io.swagger.core.v3:swagger-annotations:2.2.20")
+
     // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
+    // MapStruct
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+
     // Testing
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-web-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -56,7 +61,7 @@ openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$rootDir/src/main/resources/api/openapi.yaml")
     outputDir.set("$buildDir/generated/api")
-    apiPackage.set("com.flightlogger.backend")
+    apiPackage.set("com.flightlogger.backend.api")
     modelPackage.set("com.flightlogger.backend.model")
 
     configOptions.set(mapOf(
@@ -64,8 +69,13 @@ openApiGenerate {
         "generateModels" to "true",
         "useTags" to "true",
         "dateLibrary" to "java8",
-        "useSpringBoot3" to "true"
+        "useSpringBoot3" to "true",
+        "openApiNullable" to "false", // necessary to disable use of JsonNullable which causes mapping errors
     ))
+}
+
+tasks.named("openApiGenerate") {
+    inputs.dir("$rootDir/src/main/resources/api")
 }
 
 openApiValidate {
@@ -76,7 +86,7 @@ openApiValidate {
 sourceSets {
     main {
         java {
-            srcDir("${layout.buildDirectory}/generated/src/main/java")
+            srcDir("$buildDir/generated/api/src/main/java")
         }
     }
 }
