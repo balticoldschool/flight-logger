@@ -2,6 +2,7 @@ package com.flightlogger.backend.domain.airline.service;
 
 import com.flightlogger.backend.domain.airline.entity.Airline;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
+import com.flightlogger.backend.domain.airline.exception.AirlineNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,6 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public Airline getAirlineByIcao(String airlineIcao) {
-        // todo: implement error handling
-        return airlineRepository.findById(airlineIcao).orElse(null);
+        return airlineRepository.findById(airlineIcao).orElseThrow(() -> new AirlineNotFoundException(airlineIcao));
     }
-
-
 }
