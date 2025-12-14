@@ -1,0 +1,8 @@
+---
+
+type: string
+description: IATA code of the airline
+example: "LH"
+minLength: 2
+maxLength: 2
+pattern: "^[A-Z]{2}$"

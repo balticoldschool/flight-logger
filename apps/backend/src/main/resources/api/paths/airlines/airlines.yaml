@@ -13,4 +13,4 @@ get:
           schema:
             type: array
             items:
-              $ref: '../schemas/airline/airline-read-dto.yaml'
+              $ref: '../../schemas/airline/airline-read-dto.yaml'

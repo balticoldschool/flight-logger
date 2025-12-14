@@ -8,17 +8,9 @@ required:
   - imageLink
 properties:
   icao:
-    type: string
-    description: ICAO code of the airline
-    example: "DLH"
-    minLength: 3
-    maxLength: 3
+    $ref: './common/airline-icao.yaml'
   iata:
-    type: string
-    description: IATA code of the airline
-    example: "LH"
-    minLength: 2
-    maxLength: 2
+    $ref: './common/airline-iata.yaml'
   name:
     type: string
     description: Name of the airline

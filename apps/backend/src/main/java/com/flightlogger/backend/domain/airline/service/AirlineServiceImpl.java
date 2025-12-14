@@ -16,4 +16,12 @@ public class AirlineServiceImpl implements AirlineService {
     public List<Airline> getAllAirlines(){
         return airlineRepository.findAll();
     }
+
+    @Override
+    public Airline getAirlineByIcao(String airlineIcao) {
+        // todo: implement error handling
+        return airlineRepository.findById(airlineIcao).orElse(null);
+    }
+
+
 }

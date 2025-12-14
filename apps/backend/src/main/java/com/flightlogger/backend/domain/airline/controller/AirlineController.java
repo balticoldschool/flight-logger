@@ -7,18 +7,26 @@ import com.flightlogger.backend.domain.airline.service.AirlineService;
 import com.flightlogger.backend.model.AirlineReadDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/airlines")
 public class AirlineController implements AirlinesApi {
 
    private final AirlineService airlineService;
    private final AirlineMapper airlineMapper;
+
+    @Override
+    public ResponseEntity<AirlineReadDto> getAirlineByIcao(
+            @PathVariable("airlineIcao") String airlineIcao
+    ) {
+        final Airline airline = airlineService.getAirlineByIcao(airlineIcao.toUpperCase());
+
+        return ResponseEntity.ok().body(airlineMapper.toDto(airline));
+    }
 
     @Override
     public ResponseEntity<List<AirlineReadDto>> getAllAirlines() {

@@ -1,0 +1,11 @@
+---
+
+name: airlineIcao
+in: path
+required: true
+description: ICAO code of the airline
+schema:
+  type: string
+  example: "DLH"
+  minLength: 3
+  maxLength: 3
