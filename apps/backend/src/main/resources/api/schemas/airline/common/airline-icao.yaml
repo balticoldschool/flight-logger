@@ -5,4 +5,4 @@ description: ICAO code of the airline
 example: "DLH"
 minLength: 3
 maxLength: 3
-pattern: "^[A-Z]{3}$"
+pattern: "^[a-zA-Z]{3}$"

@@ -14,3 +14,35 @@ get:
             type: array
             items:
               $ref: '../../schemas/airline/airline-read-dto.yaml'
+
+post:
+  tags:
+    - Airlines
+  summary: Create a new airline
+  operationId: createAirline
+  requestBody:
+    required: true
+    description: Airline to create
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/airline/airline-create-dto.yaml'
+  responses:
+    201:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/airline/airline-read-dto.yaml'
+    400:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    409:
+      description: Airline with ICAO- or IATA code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'

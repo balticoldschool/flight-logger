@@ -1,8 +1,13 @@
 package com.flightlogger.backend.domain.airline.service;
 
 import com.flightlogger.backend.domain.airline.entity.Airline;
+import com.flightlogger.backend.domain.airline.entity.AirlineMapper;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
+import com.flightlogger.backend.domain.airline.exception.AirlineAlreadyExistsException;
 import com.flightlogger.backend.domain.airline.exception.AirlineNotFoundException;
+import com.flightlogger.backend.model.AirlineCreateDto;
+import com.flightlogger.backend.model.AirlineReadDto;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +18,7 @@ import java.util.List;
 public class AirlineServiceImpl implements AirlineService {
 
     private final AirlineRepository airlineRepository;
+    private final AirlineMapper airlineMapper;
 
     public List<Airline> getAllAirlines(){
         return airlineRepository.findAll();
@@ -21,5 +27,27 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public Airline getAirlineByIcao(String airlineIcao) {
         return airlineRepository.findById(airlineIcao).orElseThrow(() -> new AirlineNotFoundException(airlineIcao));
+    }
+
+    @Override
+    @Transactional
+    public AirlineReadDto saveAirline(AirlineCreateDto dto) {
+        String icaoCode = dto.getIcao().toUpperCase();
+        String iataCode = dto.getIata().toUpperCase();
+
+        if (airlineRepository.existsByIcaoCode(icaoCode)) {
+            throw new AirlineAlreadyExistsException("ICAO", icaoCode);
+        }
+
+        if (airlineRepository.existsByIataCode(iataCode)) {
+            throw new AirlineAlreadyExistsException("IATA", iataCode);
+        }
+
+        // Save entity
+        Airline newAirline = airlineMapper.toEntity(dto);
+        Airline savedAirline = airlineRepository.save(newAirline);
+
+        // Map back to ReadDto
+        return airlineMapper.toDto(savedAirline);
     }
 }
