@@ -1,0 +1,20 @@
+---
+
+type: object
+required:
+  - iata
+  - name
+properties:
+  iata:
+    $ref: './common/airline-iata.yaml'
+  name:
+    type: string
+    description: Name of the airline
+    example: "Deutsche Lufthansa"
+    maxLength: 127
+    minLength: 1
+  imageLink:
+    type: string
+    description: Link to the airline's logo
+    example: "https://www.foo.de/logo.png"
+    maxLength: 255

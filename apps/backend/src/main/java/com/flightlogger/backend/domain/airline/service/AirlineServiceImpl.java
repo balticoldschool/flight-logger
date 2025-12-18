@@ -7,6 +7,7 @@ import com.flightlogger.backend.domain.airline.exception.AirlineAlreadyExistsExc
 import com.flightlogger.backend.domain.airline.exception.AirlineNotFoundException;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
+import com.flightlogger.backend.model.AirlineUpdateDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +51,25 @@ public class AirlineServiceImpl implements AirlineService {
 
         // Map back to ReadDto
         return airlineMapper.toDto(savedAirline);
+    }
+
+    @Override
+    @Transactional
+    public AirlineReadDto updateAirline(String icaoCode, AirlineUpdateDto dto) {
+        String iataCode = StringUtils.upperCase(dto.getIata());
+        String icaocode = StringUtils.upperCase(icaoCode);
+
+        Airline airline = airlineRepository
+                .findById(icaocode)
+                .orElseThrow(() -> new AirlineNotFoundException(icaocode));
+
+        if (!iataCode.equals(airline.getIataCode()) && airlineRepository.existsByIataCode(iataCode)) {
+            throw new AirlineAlreadyExistsException("IATA", iataCode);
+        }
+
+        airlineMapper.updateFromDto(dto, airline);
+
+        return airlineMapper.toDto(airline);
     }
 
     @Override

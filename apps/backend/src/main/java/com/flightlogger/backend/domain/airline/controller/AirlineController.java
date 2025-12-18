@@ -6,6 +6,7 @@ import com.flightlogger.backend.domain.airline.entity.AirlineMapper;
 import com.flightlogger.backend.domain.airline.service.AirlineService;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
+import com.flightlogger.backend.model.AirlineUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,5 +49,10 @@ public class AirlineController implements AirlinesApi {
                 airlines.stream()
                         .map(airlineMapper::toDto)
                         .toList());
+    }
+
+    @Override
+    public ResponseEntity<AirlineReadDto> updateAirlineByIcao(String airlineIcao, AirlineUpdateDto airlineUpdateDto) {
+        return ResponseEntity.ok().body(airlineService.updateAirline(airlineIcao, airlineUpdateDto));
     }
 }

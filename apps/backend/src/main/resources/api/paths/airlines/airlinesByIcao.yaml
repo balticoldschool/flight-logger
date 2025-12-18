@@ -15,14 +15,12 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/airline/airline-read-dto.yaml'
-
     400:
       description: Invalid ICAO code
       content:
         application/json:
           schema:
             $ref: '../../schemas/common/problem-details.yaml'
-
     404:
       description: Airline not found
       content:
@@ -38,3 +36,41 @@ delete:
   responses:
     204:
       description: Airline deleted
+
+put:
+  tags:
+    - Airlines
+  summary: Updates an existing airline
+  operationId: updateAirlineByIcao
+  requestBody:
+    required: true
+    description: Airline to update
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/airline/airline-update-dto.yaml'
+  responses:
+    200:
+      description: Airline updated
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/airline/airline-read-dto.yaml'
+    400:
+      description: Invalid ICAO code
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    404:
+      description: Airline not found
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    409:
+      description: Airline with IATA code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'

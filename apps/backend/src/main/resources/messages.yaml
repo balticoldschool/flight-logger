@@ -5,12 +5,23 @@ NotNull:
     icao: "Mandatory field ICAO code missing"
     iata: "Mandatory field IATA code missing"
 
+  airlineUpdateDto:
+    name: "Mandatory field name missing"
+    iata: "Mandatory field IATA code missing"
+
 Size:
   airlineCreateDto:
     icao: "Invalid ICAO code"
     iata: "Invalid IATA code"
 
+  airlineUpdateDto:
+    iata: "Invalid IATA code"
+
 Pattern:
   airlineCreateDto:
+    icao: "Invalid ICAO code"
+    iata: "Invalid IATA code"
+
+  airlineUpdateDto:
     icao: "Invalid ICAO code"
     iata: "Invalid IATA code"
