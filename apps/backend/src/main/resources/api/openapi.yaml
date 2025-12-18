@@ -11,4 +11,6 @@ servers:
 
 paths:
   /airlines:
-    $ref: './paths/airlines.yaml'
+    $ref: './paths/airlines/airlines.yaml'
+  /airlines/{airlineIcao}:
+    $ref: './paths/airlines/airlinesByIcao.yaml'

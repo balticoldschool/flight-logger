@@ -5,7 +5,6 @@ required:
   - icao
   - iata
   - name
-  - imageLink
 properties:
   icao:
     $ref: './common/airline-icao.yaml'

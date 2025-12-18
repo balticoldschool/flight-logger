@@ -2,13 +2,9 @@
 
 type: object
 required:
-  - icao
   - iata
   - name
-  - imageLink
 properties:
-  icao:
-    $ref: './common/airline-icao.yaml'
   iata:
     $ref: './common/airline-iata.yaml'
   name:
@@ -22,4 +18,3 @@ properties:
     description: Link to the airline's logo
     example: "https://www.foo.de/logo.png"
     maxLength: 255
-    nullable: true
