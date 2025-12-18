@@ -28,6 +28,12 @@ public class AirlineController implements AirlinesApi {
     }
 
     @Override
+    public ResponseEntity<Void> deleteAirlineByIcao(String airlineIcao) {
+        airlineService.deleteAirline(airlineIcao);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     public ResponseEntity<AirlineReadDto> getAirlineByIcao(String airlineIcao) {
         final Airline airline = airlineService.getAirlineByIcao(airlineIcao.toUpperCase());
 

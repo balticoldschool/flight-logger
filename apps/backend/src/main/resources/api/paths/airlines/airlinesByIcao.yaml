@@ -1,12 +1,13 @@
 ---
 
+parameters:
+  - $ref: '../airlines/params/airline-icao-param.yaml'
+
 get:
   tags:
     - Airlines
   summary: Get an airline by its ICAO code
   operationId: getAirlineByIcao
-  parameters:
-    - $ref: '../airlines/params/airline-icao-param.yaml'
   responses:
     200:
       description: OK
@@ -28,3 +29,12 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/common/problem-details.yaml'
+
+delete:
+  tags:
+    - Airlines
+  summary: Delete an airline by its ICAO code
+  operationId: deleteAirlineByIcao
+  responses:
+    204:
+      description: Airline deleted

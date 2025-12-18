@@ -9,6 +9,7 @@ import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,8 +33,8 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     @Transactional
     public AirlineReadDto saveAirline(AirlineCreateDto dto) {
-        String icaoCode = dto.getIcao().toUpperCase();
-        String iataCode = dto.getIata().toUpperCase();
+        String icaoCode = StringUtils.upperCase(dto.getIcao());
+        String iataCode = StringUtils.upperCase(dto.getIata());
 
         if (airlineRepository.existsByIcaoCode(icaoCode)) {
             throw new AirlineAlreadyExistsException("ICAO", icaoCode);
@@ -49,5 +50,11 @@ public class AirlineServiceImpl implements AirlineService {
 
         // Map back to ReadDto
         return airlineMapper.toDto(savedAirline);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAirline(String airlineIcao) {
+        airlineRepository.deleteById(StringUtils.upperCase(airlineIcao));
     }
 }

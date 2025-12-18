@@ -12,4 +12,6 @@ public interface AirlineService {
     Airline getAirlineByIcao(String airlineIcao);
 
     AirlineReadDto saveAirline(AirlineCreateDto dto);
+
+    void deleteAirline(String airlineIcao);
 }
