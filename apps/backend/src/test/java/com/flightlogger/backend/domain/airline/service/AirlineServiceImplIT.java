@@ -13,26 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static com.flightlogger.backend.testdata.AirlineTestData.CFG_READ_DTO;
+import static com.flightlogger.backend.testdata.AirlineTestData.DLH_READ_DTO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @IntegrationTest
 class AirlineServiceImplIT {
-
-    static final AirlineReadDto DLH = new AirlineReadDto(
-            "DLH",
-            "LH",
-            "Deutsche Lufthansa",
-            "www.logo.foo"
-    );
-
-    static final AirlineReadDto CFG = new AirlineReadDto(
-            "CFG",
-            "DE",
-            "Condor",
-            "www.logo.bar"
-    );
 
     @Autowired
     private AirlineService airlineService;
@@ -55,7 +43,7 @@ class AirlineServiceImplIT {
                     .hasSize(2)
                     .usingRecursiveComparison()
                     .ignoringCollectionOrder()
-                    .isEqualTo(List.of(DLH, CFG));
+                    .isEqualTo(List.of(DLH_READ_DTO, CFG_READ_DTO));
         }
     }
 
@@ -67,10 +55,10 @@ class AirlineServiceImplIT {
         @DisplayName("Should return desired airline by its icao code")
         void getAirlineByIcao_Success() {
             // when
-            AirlineReadDto airline = airlineService.getAirlineByIcao(DLH.getIcao());
+            AirlineReadDto airline = airlineService.getAirlineByIcao(DLH_READ_DTO.getIcao());
 
             // then
-            assertThat(airline).isEqualTo(DLH);
+            assertThat(airline).isEqualTo(DLH_READ_DTO);
         }
 
         @Test
@@ -91,13 +79,13 @@ class AirlineServiceImplIT {
         @DisplayName("Should delete airline from the database")
         void deleteAirlineByIcao_Success() {
             // given
-            assertThat(airlineRepository.existsById(DLH.getIcao())).isTrue();
+            assertThat(airlineRepository.existsById(DLH_READ_DTO.getIcao())).isTrue();
 
             // when
-            airlineService.deleteAirline(DLH.getIcao().toLowerCase());
+            airlineService.deleteAirline(DLH_READ_DTO.getIcao().toLowerCase());
 
             // then
-            assertThat(airlineRepository.existsById(DLH.getIcao())).isFalse();
+            assertThat(airlineRepository.existsById(DLH_READ_DTO.getIcao())).isFalse();
         }
 
         @Test
@@ -151,7 +139,7 @@ class AirlineServiceImplIT {
         @DisplayName("Should throw AirlineAlreadyExistsException when icao code already exists")
         void saveAirline_IcaoExists_ThrowAirlineAlreadyExistsException() {
             // given
-            newAirline.setIcao(DLH.getIcao());
+            newAirline.setIcao(DLH_READ_DTO.getIcao());
 
             // when and then
             assertThatThrownBy(() -> airlineService.saveAirline(newAirline))
@@ -165,7 +153,7 @@ class AirlineServiceImplIT {
         @DisplayName("Should throw AirlineAlreadyExistsException when iata code already exists")
         void saveAirline_IataExists_ThrowAirlineAlreadyExistsException() {
             // given
-            newAirline.setIata(DLH.getIata());
+            newAirline.setIata(DLH_READ_DTO.getIata());
 
             // when and then
             assertThatThrownBy(() -> airlineService.saveAirline(newAirline))
@@ -184,8 +172,8 @@ class AirlineServiceImplIT {
         @BeforeEach
         void setup() {
             updateDto = new AirlineUpdateDto();
-            updateDto.setIata(DLH.getIata());
-            updateDto.setName(DLH.getName());
+            updateDto.setIata(DLH_READ_DTO.getIata());
+            updateDto.setName(DLH_READ_DTO.getName());
         }
 
         @Test
@@ -194,14 +182,14 @@ class AirlineServiceImplIT {
             // given
             updateDto.setIata("aa");
             updateDto.setName("new name");
-            Airline beforeUpdate = airlineRepository.findById(DLH.getIcao()).orElse(null);
+            Airline beforeUpdate = airlineRepository.findById(DLH_READ_DTO.getIcao()).orElse(null);
             assertThat(beforeUpdate).isNotNull();
             assertThat(beforeUpdate.getIataCode()).isNotEqualTo(updateDto.getIata().toUpperCase());
             assertThat(beforeUpdate.getName()).isNotEqualTo(updateDto.getName());
 
             // when
-            AirlineReadDto result = airlineService.updateAirline(DLH.getIcao().toLowerCase(), updateDto);
-            Airline afterUpdate = airlineRepository.findById(DLH.getIcao()).orElse(null);
+            AirlineReadDto result = airlineService.updateAirline(DLH_READ_DTO.getIcao().toLowerCase(), updateDto);
+            Airline afterUpdate = airlineRepository.findById(DLH_READ_DTO.getIcao()).orElse(null);
 
             // then
             assertThat(result.getIata()).isEqualTo(updateDto.getIata().toUpperCase());
@@ -218,14 +206,14 @@ class AirlineServiceImplIT {
         void updateAirline_updateImageLink_Success() {
             // given
             updateDto.setImageLink(null);
-            Airline beforeUpdate = airlineRepository.findById(DLH.getIcao()).orElse(null);
+            Airline beforeUpdate = airlineRepository.findById(DLH_READ_DTO.getIcao()).orElse(null);
 
             Assertions.assertNotNull(beforeUpdate);
             assertThat(beforeUpdate.getImageLink()).isNotNull();
 
             // when
-            AirlineReadDto result = airlineService.updateAirline(DLH.getIcao().toLowerCase(), updateDto);
-            Airline afterUpdate = airlineRepository.findById(DLH.getIcao()).orElse(null);
+            AirlineReadDto result = airlineService.updateAirline(DLH_READ_DTO.getIcao().toLowerCase(), updateDto);
+            Airline afterUpdate = airlineRepository.findById(DLH_READ_DTO.getIcao()).orElse(null);
 
             // then
             assertThat(result.getImageLink()).isNull();
@@ -237,10 +225,10 @@ class AirlineServiceImplIT {
         @DisplayName("Should throw AirlineAlreadyExistsException when new IATA already exists")
         void updateAirline_IataExists_ThrowAirlineAlreadyExistsException() {
             // given
-            updateDto.setIata(CFG.getIata());
+            updateDto.setIata(CFG_READ_DTO.getIata());
 
             // when & then
-            assertThatThrownBy(() -> airlineService.updateAirline(DLH.getIcao(), updateDto))
+            assertThatThrownBy(() -> airlineService.updateAirline(DLH_READ_DTO.getIcao(), updateDto))
                     .isInstanceOf(AirlineAlreadyExistsException.class)
                     .hasMessage("Airline with IATA DE already exists");
         }
