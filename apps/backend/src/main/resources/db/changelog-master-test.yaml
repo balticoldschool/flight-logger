@@ -1,0 +1,11 @@
+databaseChangeLog:
+
+  # Add general changes first
+  - includeAll:
+      path: changelogs/
+      relativeToChangelogFile: true
+
+  # Add test data
+  - includeAll:
+      path: test/
+      relativeToChangelogFile: true

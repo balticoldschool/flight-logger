@@ -22,13 +22,19 @@ public class AirlineServiceImpl implements AirlineService {
     private final AirlineRepository airlineRepository;
     private final AirlineMapper airlineMapper;
 
-    public List<Airline> getAllAirlines(){
-        return airlineRepository.findAll();
+    @Override
+    public List<AirlineReadDto> getAllAirlines(){
+
+        List<Airline> airlines = airlineRepository.findAll();
+
+        return airlines.stream().map(airlineMapper::toDto).toList();
     }
 
     @Override
-    public Airline getAirlineByIcao(String airlineIcao) {
-        return airlineRepository.findById(airlineIcao).orElseThrow(() -> new AirlineNotFoundException(airlineIcao));
+    public AirlineReadDto getAirlineByIcao(String airlineIcao) {
+        return airlineRepository.findById(airlineIcao)
+                .map(airlineMapper::toDto)
+                .orElseThrow(() -> new AirlineNotFoundException(airlineIcao));
     }
 
     @Override
@@ -46,8 +52,7 @@ public class AirlineServiceImpl implements AirlineService {
         }
 
         // Save entity
-        Airline newAirline = airlineMapper.toEntity(dto);
-        Airline savedAirline = airlineRepository.save(newAirline);
+        Airline savedAirline = airlineRepository.save(airlineMapper.toEntity(dto));
 
         // Map back to ReadDto
         return airlineMapper.toDto(savedAirline);
