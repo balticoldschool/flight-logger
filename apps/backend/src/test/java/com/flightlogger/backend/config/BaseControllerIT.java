@@ -27,4 +27,8 @@ public abstract class BaseControllerIT {
     protected <T> T readResponseBody(MockHttpServletResponse response, TypeReference<T> typeRef) throws Exception {
         return objectMapper.readValue(response.getContentAsString(), typeRef);
     }
+
+    protected <T> T readResponseBody(MockHttpServletResponse response, Class<T> valueType) throws Exception {
+        return objectMapper.readValue(response.getContentAsString(), valueType);
+    }
 }
