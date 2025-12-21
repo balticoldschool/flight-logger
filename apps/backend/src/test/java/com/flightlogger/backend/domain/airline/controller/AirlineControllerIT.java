@@ -3,7 +3,9 @@ package com.flightlogger.backend.domain.airline.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
+import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,9 +15,11 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.flightlogger.backend.testdata.AirlineTestData.CFG_READ_DTO;
 import static com.flightlogger.backend.testdata.AirlineTestData.DLH_READ_DTO;
+import static com.flightlogger.backend.testdata.ErrorMessages.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AirlineControllerIT extends BaseControllerIT {
@@ -24,6 +28,13 @@ class AirlineControllerIT extends BaseControllerIT {
     private AirlineRepository airlineRepository;
 
     final String BASE_URL = "/airlines";
+
+    long dbCountBefore;
+
+    @BeforeEach
+    void setUp() {
+        dbCountBefore = airlineRepository.count();
+    }
 
     @Nested
     @DisplayName("Get all airlines")
@@ -38,7 +49,8 @@ class AirlineControllerIT extends BaseControllerIT {
 
             // when
             MockHttpServletResponse response = performGetRequest(BASE_URL);
-            List<AirlineReadDto> airlines = readResponseBody(response, new TypeReference<List<AirlineReadDto>>() {});
+            List<AirlineReadDto> airlines = readResponseBody(response, new TypeReference<>() {
+            });
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -55,10 +67,10 @@ class AirlineControllerIT extends BaseControllerIT {
         @DisplayName("Should return the desired airline")
         void getAirlineByIcao_Success() throws Exception {
             // given
-            String url = BASE_URL.concat("/").concat(DLH_READ_DTO.getIcao());
+            String icaoCode = DLH_READ_DTO.getIcao();
 
             // when
-            MockHttpServletResponse response = performGetRequest(url);
+            MockHttpServletResponse response = performGetRequest(BASE_URL + "/{icao}", icaoCode.toLowerCase());
             AirlineReadDto airline = readResponseBody(response, AirlineReadDto.class);
 
             // then
@@ -70,30 +82,297 @@ class AirlineControllerIT extends BaseControllerIT {
         @DisplayName("Should return 404 with corresponding message")
         void getAirlineByIcao_AirlineNotFound_ReturnNotFoundResponse() throws Exception {
             // given
-            String url = BASE_URL.concat("/").concat("foo");
+            String invalidIcaoCode = "foo";
 
             // when
-            MockHttpServletResponse response = performGetRequest(url);
-            ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
-
-            // then
-            assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-            assertThat(problemDetail.getDetail()).isEqualTo("Airline with ICAO code FOO not found");
+            performAndValidateException(
+                    performGetRequest(BASE_URL + "/{icao}", invalidIcaoCode),
+                    HttpStatus.NOT_FOUND,
+                    NOT_FOUND_ERROR_TITLE,
+                    String.format(AIRLINE_NOT_FOUND, invalidIcaoCode.toUpperCase())
+                    );
         }
 
         @Test
         @DisplayName("Should return 400 bad request with corresponding message")
         void getAirlineByIcao_InvalidIcaoCode_ReturnBadRequest() throws Exception {
+            // when
+            performAndValidateException(
+                    performGetRequest(BASE_URL + "/{icao}", "1abc"),
+                    HttpStatus.BAD_REQUEST,
+                    BAD_REQUEST_ERROR_TITLE,
+                    INVALID_ICAO_CODE_MESSAGE
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete airline")
+    class DeleteAirline {
+
+        long dbCount;
+
+        @BeforeEach
+        void setUp() {
+            dbCount = airlineRepository.count();
+        }
+
+        @Test
+        @DisplayName("Should delete airline and return status 204")
+        void deleteAirline_Success() throws Exception {
             // given
-            String url = BASE_URL.concat("/").concat("a");
+            String icaoCode = DLH_READ_DTO.getIcao();
+            assertThat(airlineRepository.existsById(icaoCode)).isTrue();
 
             // when
-            MockHttpServletResponse response = performGetRequest(url);
+            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", icaoCode.toLowerCase());
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            assertThat(response.getContentAsString()).isEmpty();
+            assertThat(airlineRepository.existsById(DLH_READ_DTO.getIcao())).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should simply return 204 no content when icao code does not exist")
+        void deleteAirline_IcaoDoesNotExist_Success() throws Exception {
+            // given
+            String icaoCode = "FOO";
+            assertThat(airlineRepository.existsById(icaoCode)).isFalse();
+
+            // when
+            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", icaoCode);
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            assertThat(airlineRepository.count()).isEqualTo(dbCount);
+        }
+
+        @Test
+        @DisplayName("Should throw 400 Bad Request when icao is invalid")
+        void deleteAirline_InvalidIcao_ThrowBadRequest() throws Exception {
+            // when
+            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", "a");
             ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-            assertThat(problemDetail.getDetail()).isEqualTo("invalid ICAO code");
+            assertThat(problemDetail.getTitle()).isEqualTo("Bad Request");
+            assertThat(problemDetail.getDetail()).isEqualTo(INVALID_ICAO_CODE_MESSAGE);
         }
+    }
+
+    @Nested
+    @DisplayName("Create airline")
+    class CreateAirline {
+
+        AirlineCreateDto newAirline;
+
+        @BeforeEach
+        void setUp() {
+            newAirline = new AirlineCreateDto("aal", "aa", "American Airlines");
+        }
+
+        @Test
+        @DisplayName("Should create new airline and return 201")
+        void createAirline_Success() throws Exception {
+            // given
+            newAirline.setImageLink("https://foo.bar/image.png");
+
+            // when
+            MockHttpServletResponse response = performPostRequest(BASE_URL, newAirline);
+            AirlineReadDto createAirline = readResponseBody(response, AirlineReadDto.class);
+            long dbCountAfter = airlineRepository.count();
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+            assertThat(dbCountAfter).isEqualTo(dbCountBefore + 1);
+            assertThat(airlineRepository.existsById(newAirline.getIcao().toUpperCase())).isTrue();
+
+            assertThat(createAirline.getIcao()).isEqualTo(newAirline.getIcao().toUpperCase());
+            assertThat(createAirline.getIata()).isEqualTo(newAirline.getIata().toUpperCase());
+            assertThat(createAirline.getName()).isEqualTo(newAirline.getName());
+            assertThat(createAirline.getImageLink()).isEqualTo(newAirline.getImageLink());
+        }
+
+        @Test
+        @DisplayName("Should create new airline without image link and return 201")
+        void createAirline_NoImageLink_Success() throws Exception {
+            // when
+            MockHttpServletResponse response = performPostRequest(BASE_URL, newAirline);
+            AirlineReadDto createAirline = readResponseBody(response, AirlineReadDto.class);
+            long dbCountAfter = airlineRepository.count();
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+            assertThat(dbCountAfter).isEqualTo(dbCountBefore + 1);
+            assertThat(createAirline.getImageLink()).isNull();
+        }
+
+        @Nested
+        @DisplayName("DTO validaiton exceptions - should not create airline and return 400 Bad Request -")
+        class DtoValidation {
+            @Test
+            @DisplayName("when icao is missing")
+            void createAirline_MissingIcao_ReturnBadRequest() throws Exception {
+                // given
+                Map<String, String> invalidPayload = Map.of(
+                        "iata", "lh",
+                        "name", "Lufthansa"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_ICAO_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when icao is null")
+            void createAirline_IcaoNull_ReturnBadRequest() throws Exception {
+                // given
+                newAirline.setIcao(null);
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, MANDATORY_ICAO_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when icao is invalid")
+            void createAirline_InvalidIcao_ReturnBadRequest() throws Exception {
+                // given
+                newAirline.setIcao("1abc");
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, INVALID_ICAO_CODE_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when iata is missing")
+            void createAirline_MissingIata_ReturnBadRequest() throws Exception {
+                // given
+                Map<String, String> invalidPayload = Map.of(
+                        "icao", "DLH",
+                        "name", "Deutsche Lufthansa"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_IATA_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when iata is null")
+            void createAirline_IataNull_ReturnBadRequest() throws Exception {
+                // given
+                newAirline.setIata(null);
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, MANDATORY_IATA_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when iata is invalid")
+            void createAirline_InvalidIata_ReturnBadRequest() throws Exception {
+                // given
+                newAirline.setIata("abcde");
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, INVALID_IATA_CODE_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when name is missing")
+            void createAirline_NameMissing_ReturnBadRequest() throws Exception {
+                // given
+                Map<String, String> invalidPayload = Map.of(
+                        "icao", "DLH",
+                        "iata", "LH"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_NAME_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when name is null")
+            void createAirline_NameNull_RetrurnBadRequest() throws Exception {
+                // given
+                newAirline.setName(null);
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, MANDATORY_NAME_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when name is invalid")
+            void createAirline_NameInvalid_ReturnBadRequest() throws Exception {
+                // given
+                newAirline.setName("");
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, INVALID_NAME_MESSAGE);
+            }
+
+            private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
+                performAndValidateException(
+                        performPostRequest(BASE_URL, payload),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        expectedDetail);
+            }
+        }
+
+        @Nested
+        @DisplayName("Conflicts - should not create airline and return 409 Conflict -")
+        class Conflicts {
+
+            @Test
+            @DisplayName("when icao code exists")
+            void createAirline_IcaoExists_ReturnConflict() throws Exception {
+                // given
+                String lufthansaIcao = DLH_READ_DTO.getIcao();
+                newAirline.setIcao(lufthansaIcao.toUpperCase());
+                String expectedProblemDetail =
+                        String.format(AIRLINE_ICAO_ALREADY_EXISTS_MESSAGE, DLH_READ_DTO.getIcao());
+
+                // when & then
+                performAndValidateConflict(newAirline, expectedProblemDetail);
+            }
+
+            @Test
+            @DisplayName("when iata code exists")
+            void createAirline_IataExists_ReturnConflict() throws Exception {
+                // given
+                String existingIata = CFG_READ_DTO.getIata();
+                newAirline.setIata(existingIata);
+                String expectedDetailsMessage = String.format(AIRLINE_IATA_ALREADY_EXISTS_MESSAGE, existingIata);
+
+                // when & then
+                performAndValidateConflict(newAirline, expectedDetailsMessage);
+            }
+
+            private void performAndValidateConflict(Object payload, String expectedDetail) throws Exception {
+                performAndValidateException(
+                        performPostRequest(BASE_URL, payload),
+                        HttpStatus.CONFLICT,
+                        CONFLICT_ERROR_TITLE,
+                        expectedDetail
+                );
+            }
+        }
+    }
+
+    private void performAndValidateException(
+            MockHttpServletResponse response,
+            HttpStatus expectedStatus,
+            String expectedTitle,
+            String expectedDetail) throws Exception {
+        // when
+        ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
+        long dbCountAfter = airlineRepository.count();
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(expectedStatus.value());
+        assertThat(dbCountAfter).isEqualTo(dbCountBefore);
+        assertThat(problemDetail.getTitle()).isEqualTo(expectedTitle);
+        assertThat(problemDetail.getDetail()).isEqualTo(expectedDetail);
     }
 }

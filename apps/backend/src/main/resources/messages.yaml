@@ -13,6 +13,7 @@ Size:
   airlineCreateDto:
     icao: "Invalid ICAO code"
     iata: "Invalid IATA code"
+    name: "Invalid Name field"
 
   airlineUpdateDto:
     iata: "Invalid IATA code"

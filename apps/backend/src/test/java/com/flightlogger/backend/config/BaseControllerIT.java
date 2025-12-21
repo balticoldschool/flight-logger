@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @IntegrationTest
 public abstract class BaseControllerIT {
@@ -19,9 +19,22 @@ public abstract class BaseControllerIT {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    protected MockHttpServletResponse performGetRequest(String url) throws Exception {
-        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON))
+    protected MockHttpServletResponse performGetRequest(String baseUrl, Object... vars) throws Exception {
+        return mockMvc.perform(get(baseUrl, vars).contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
+    }
+
+    protected MockHttpServletResponse performDeleteRequest(String baseUrl, Object... vars) throws Exception {
+        return mockMvc.perform(delete(baseUrl, vars).contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+    }
+
+    protected MockHttpServletResponse performPostRequest(String baseUrl, Object body) throws Exception {
+        return mockMvc.perform(post(baseUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body))
+                .accept(MediaType.APPLICATION_JSON)
+        ).andReturn().getResponse();
     }
 
     protected <T> T readResponseBody(MockHttpServletResponse response, TypeReference<T> typeRef) throws Exception {
