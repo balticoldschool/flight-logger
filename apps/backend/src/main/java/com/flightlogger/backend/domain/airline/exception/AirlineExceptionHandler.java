@@ -16,7 +16,7 @@ public class AirlineExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ProblemDetail handleConstraintViolationException() {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "invalid ICAO code");
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid ICAO code");
     }
 
     @ExceptionHandler(AirlineNotFoundException.class)

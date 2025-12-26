@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:flightlogger_test_db;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: test
+    password: test
+
+  liquibase:
+    change-log: classpath:db/changelog-master-test.yaml
+
+
+  # Show SQL in logs to help debug failed tests
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

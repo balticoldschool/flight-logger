@@ -1,8 +1,6 @@
 package com.flightlogger.backend.domain.airline.controller;
 
 import com.flightlogger.backend.api.AirlinesApi;
-import com.flightlogger.backend.domain.airline.entity.Airline;
-import com.flightlogger.backend.domain.airline.entity.AirlineMapper;
 import com.flightlogger.backend.domain.airline.service.AirlineService;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
@@ -19,7 +17,6 @@ import java.util.List;
 public class AirlineController implements AirlinesApi {
 
    private final AirlineService airlineService;
-   private final AirlineMapper airlineMapper;
 
     @Override
     public ResponseEntity<AirlineReadDto> createAirline(AirlineCreateDto dto) {
@@ -36,19 +33,13 @@ public class AirlineController implements AirlinesApi {
 
     @Override
     public ResponseEntity<AirlineReadDto> getAirlineByIcao(String airlineIcao) {
-        final Airline airline = airlineService.getAirlineByIcao(airlineIcao.toUpperCase());
-
-        return ResponseEntity.ok().body(airlineMapper.toDto(airline));
+        return ResponseEntity.ok().body(airlineService.getAirlineByIcao(airlineIcao.toUpperCase()));
     }
 
     @Override
     public ResponseEntity<List<AirlineReadDto>> getAllAirlines() {
-        final List<Airline> airlines = airlineService.getAllAirlines();
 
-        return ResponseEntity.ok().body(
-                airlines.stream()
-                        .map(airlineMapper::toDto)
-                        .toList());
+        return ResponseEntity.ok().body(airlineService.getAllAirlines());
     }
 
     @Override
