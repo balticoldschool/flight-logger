@@ -1,29 +1,20 @@
-# Pattern: Constraint.objectName.field
-NotNull:
-  airlineCreateDto:
-    name: "Mandatory field name missing"
-    icao: "Mandatory field ICAO code missing"
-    iata: "Mandatory field IATA code missing"
+# Pattern: Constraint.objectName.field - while objectName is optional for further specifications
+common:
+  mandatory_field: &mandatory_field "Mandatory field {0} is missing"
+  icao_invalid: &icao_invalid "Invalid ICAO code"
+  iata_invalid: &iata_invalid "Invalid IATA code"
+  name_invalid: &name_invalid "Invalid Name field"
 
-  airlineUpdateDto:
-    name: "Mandatory field name missing"
-    iata: "Mandatory field IATA code missing"
+NotNull:
+  icao: *mandatory_field
+  iata: *mandatory_field
+  name: *mandatory_field
 
 Size:
-  airlineCreateDto:
-    icao: "Invalid ICAO code"
-    iata: "Invalid IATA code"
-    name: "Invalid Name field"
-
-  airlineUpdateDto:
-    iata: "Invalid IATA code"
-    name: "Invalid Name field"
-
+  icao: *icao_invalid
+  iata: *iata_invalid
+  name: *name_invalid
 Pattern:
-  airlineCreateDto:
-    icao: "Invalid ICAO code"
-    iata: "Invalid IATA code"
-
-  airlineUpdateDto:
-    icao: "Invalid ICAO code"
-    iata: "Invalid IATA code"
+  icao: *icao_invalid
+  iata: *iata_invalid
+  name: *name_invalid

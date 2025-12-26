@@ -212,7 +212,7 @@ class AirlineControllerIT extends BaseControllerIT {
         }
 
         @Nested
-        @DisplayName("DTO validaiton exceptions - should not create airline and return 400 Bad Request -")
+        @DisplayName("DTO validation exceptions - should not create airline and return 400 Bad Request -")
         class DtoValidation {
 
             @Test
