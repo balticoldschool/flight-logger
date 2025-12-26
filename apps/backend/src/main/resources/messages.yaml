@@ -17,6 +17,7 @@ Size:
 
   airlineUpdateDto:
     iata: "Invalid IATA code"
+    name: "Invalid Name field"
 
 Pattern:
   airlineCreateDto:

@@ -37,6 +37,14 @@ public abstract class BaseControllerIT {
         ).andReturn().getResponse();
     }
 
+    protected MockHttpServletResponse performPutRequest(String baseUrl, Object body, Object... pathVariables) throws Exception {
+        return mockMvc.perform(put(baseUrl, pathVariables)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body))
+                .accept(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+    }
+
     protected <T> T readResponseBody(MockHttpServletResponse response, TypeReference<T> typeRef) throws Exception {
         return objectMapper.readValue(response.getContentAsString(), typeRef);
     }

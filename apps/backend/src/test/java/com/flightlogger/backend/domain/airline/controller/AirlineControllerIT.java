@@ -2,9 +2,11 @@ package com.flightlogger.backend.domain.airline.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flightlogger.backend.config.BaseControllerIT;
+import com.flightlogger.backend.domain.airline.entity.Airline;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
+import com.flightlogger.backend.model.AirlineUpdateDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -212,6 +214,7 @@ class AirlineControllerIT extends BaseControllerIT {
         @Nested
         @DisplayName("DTO validaiton exceptions - should not create airline and return 400 Bad Request -")
         class DtoValidation {
+
             @Test
             @DisplayName("when icao is missing")
             void createAirline_MissingIcao_ReturnBadRequest() throws Exception {
@@ -357,6 +360,189 @@ class AirlineControllerIT extends BaseControllerIT {
                         expectedDetail
                 );
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("Update airline")
+    class UpdateAirline {
+        AirlineUpdateDto updateDto;
+        String referenceAirlineIcao = DLH_READ_DTO.getIcao();
+        Airline referenceAirlineBeforeUpdate = airlineRepository.findById(referenceAirlineIcao).orElse(null);
+
+        @BeforeEach
+        void setUp() {
+            assertThat(referenceAirlineBeforeUpdate).isNotNull();
+            updateDto = new AirlineUpdateDto("aa", "Updated Airline");
+        }
+
+        @Test
+        @DisplayName("Should update airline and return http status OK")
+        void updateAirline_Success() throws Exception {
+            // given
+            assertThat(referenceAirlineBeforeUpdate.getName()).isNotEqualTo(updateDto.getName());
+            assertThat(referenceAirlineBeforeUpdate.getIataCode()).isNotEqualTo(updateDto.getIata().toUpperCase());
+
+            // when
+            MockHttpServletResponse response =
+                    performPutRequest(BASE_URL + "/{icao}", updateDto, "DLH");
+            AirlineReadDto responseBody = readResponseBody(response, AirlineReadDto.class);
+            Airline airlineAfterUpdate = airlineRepository.findById(referenceAirlineIcao).orElse(null);
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+            assertThat(airlineAfterUpdate).isNotNull();
+            assertThat(responseBody.getIcao()).isEqualTo(referenceAirlineIcao.toUpperCase());
+            assertThat(responseBody.getIata()).isEqualTo(updateDto.getIata().toUpperCase());
+            assertThat(responseBody.getName()).isEqualTo(updateDto.getName());
+            assertThat(responseBody.getImageLink()).isEqualTo(updateDto.getImageLink());
+
+            assertThat(airlineAfterUpdate.getIcaoCode()).isEqualTo(referenceAirlineBeforeUpdate.getIcaoCode());
+            assertThat(airlineAfterUpdate.getIataCode()).isEqualTo(updateDto.getIata().toUpperCase());
+            assertThat(airlineAfterUpdate.getName()).isEqualTo(updateDto.getName());
+            assertThat(airlineAfterUpdate.getImageLink()).isEqualTo(updateDto.getImageLink());
+        }
+
+        @Test
+        @DisplayName("Should return airline not found when icao code does not exist")
+        void updateAirline_AirlineNotFound_AirlineNotFoundResponse() throws Exception {
+            // given
+            final String invalidIcao = "foo";
+
+            // when & then
+            performAndValidateUpdateException(
+                    invalidIcao,
+                    updateDto,
+                    HttpStatus.NOT_FOUND,
+                    NOT_FOUND_ERROR_TITLE,
+                    String.format(AIRLINE_NOT_FOUND, invalidIcao.toUpperCase()));
+        }
+
+        @Test
+        @DisplayName("Should return conflict when desired iata code already exists")
+        void updateAirline_IataCodeExists_ReturnsConflict() throws Exception {
+            // given
+            updateDto.setIata(CFG_READ_DTO.getIata());
+
+            // when & then
+            performAndValidateUpdateException(
+                    referenceAirlineIcao,
+                    updateDto,
+                    HttpStatus.CONFLICT,
+                    CONFLICT_ERROR_TITLE,
+                    String.format(AIRLINE_IATA_ALREADY_EXISTS_MESSAGE, updateDto.getIata().toUpperCase())
+            );
+
+        }
+
+        @Test
+        @DisplayName("Should return Bad Request when ICAO code is invalid")
+        void updateAirline_InvalidIcao_ReturnBadRequest() throws Exception {
+            // given
+            String invalidIcao = "1abc";
+
+            // when & then
+            performAndValidateUpdateException(
+                    invalidIcao,
+                    updateDto,
+                    HttpStatus.BAD_REQUEST,
+                    BAD_REQUEST_ERROR_TITLE,
+                    INVALID_ICAO_CODE_MESSAGE
+            );
+        }
+
+
+        @Nested
+        @DisplayName("Validation - should not update airline and return 400 Bad Request when -")
+        class Validation {
+
+            @Test
+            @DisplayName("when IATA code is missing")
+            void updateAirline_MissingIata_ReturnBadRequest() throws Exception {
+                // given
+                Map<String, String> invalidPayload = Map.of(
+                  "name", "Updated Airline Name"
+                );
+
+                // when & then
+                performAndValidateUpdateValidation(referenceAirlineIcao, invalidPayload, MANDATORY_IATA_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("when IATA code is null")
+            void updateAirline_IataNull_ReturnBadRequest() throws Exception {
+                // given
+                updateDto.setIata(null);
+
+                // when & then
+                performAndValidateUpdateValidation(referenceAirlineIcao, updateDto, MANDATORY_IATA_MISSING_MESSAGE);
+            }
+
+            // invalid iata
+            @Test
+            @DisplayName("when IATA code is invalid")
+            void updateAirline_InvalidIata_ReturnBadRequest() throws Exception {
+                // given
+                updateDto.setIata("abcde");
+
+                // when & then
+                performAndValidateUpdateValidation(referenceAirlineIcao, updateDto, INVALID_IATA_CODE_MESSAGE);
+            }
+
+            // missing name
+
+            @Test
+            @DisplayName("when name is missing")
+            void updateAirline_MissingName_ReturnBadRequest() throws Exception {
+                // given
+                Map<String, String> invalidPayload = Map.of(
+                        "iata", "aa"
+                );
+
+                // when & then
+                performAndValidateUpdateValidation(referenceAirlineIcao, invalidPayload, MANDATORY_NAME_MISSING_MESSAGE);
+            }
+
+            // name is blank
+            @Test
+            @DisplayName("when name is blank")
+            void updateAirline_NameIsBlank_ReturnBadRequest() throws Exception {
+                // given
+                updateDto.setName("");
+
+                // when & then
+                performAndValidateUpdateValidation(referenceAirlineIcao, updateDto, INVALID_NAME_MESSAGE);
+            }
+
+            private void performAndValidateUpdateValidation(String icaoCode, Object requestBody, String detail) throws Exception {
+                performAndValidateUpdateException(
+                        icaoCode,
+                        requestBody,
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        detail
+                );
+            }
+        }
+
+        private void performAndValidateUpdateException(String icaoCode, Object body, HttpStatus httpStatus, String title, String detail) throws Exception {
+            performAndValidateException(
+                    performPutRequest(BASE_URL + "/{icao}", body, icaoCode),
+                    httpStatus,
+                    title,
+                    detail
+            );
+
+            final Airline airlineAfterFailedUpdate = airlineRepository.findById(referenceAirlineIcao).orElse(null);
+            final long dbCountAfterFailedUpdate = airlineRepository.count();
+
+            assertThat(airlineAfterFailedUpdate).isNotNull();
+            assertThat(dbCountAfterFailedUpdate).isEqualTo(dbCountBefore);
+
+            ///  Verifies the airline entity has not changed by comparing all existing attributes
+            assertThat(airlineAfterFailedUpdate)
+                    .usingRecursiveComparison()
+                    .isEqualTo(referenceAirlineBeforeUpdate);
         }
     }
 
