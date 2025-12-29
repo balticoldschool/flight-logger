@@ -1,0 +1,48 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'apps/backend/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    name: "Backend Tests & Coverage"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/backend/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Amazon Corretto)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+        # Runs Tests and checks code coverage
+      - name: Build and verify
+        run: ./gradlew check
+
+        # Optional: Upload the HTML report so you can download it from GitHub Actions
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: apps/backend/build/**/jacoco/**/html/
