@@ -1,17 +1,26 @@
-name: Java CI with Gradle
+name: Backend CI
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'apps/backend/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'apps/backend/**'
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-verify:
+    name: "Backend Tests & Coverage"
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/backend/
 
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +36,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
         # Runs Tests and checks code coverage
-      - name: Build with Gradle
+      - name: Build and verify
         run: ./gradlew check
 
         # Optional: Upload the HTML report so you can download it from GitHub Actions
