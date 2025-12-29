@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251229_002
+      author: christopher
+      comment: seeding country data
+      changes:
+        - loadData:
+            tableName: country
+            file: db/data/country_data.csv
+            relativeToChangelogFile: false
+            columns:
+              - column: { name: id, type: uuid }
+              - column: { name: name, type: string }
+              - column: { name: iso_code_2, type: string }
+              - column: { name: iso_code_3, type: string }
+              - column: { name: flag_emoji, type: string }

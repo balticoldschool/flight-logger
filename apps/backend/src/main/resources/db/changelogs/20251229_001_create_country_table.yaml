@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251229_001
+      author: christopher
+      comment: create country table
+      changes:
+        - createTable:
+            tableName: country
+            columns:
+
+              # Code
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_country
+
+              # Name
+              - column:
+                  name: name
+                  type: varchar(127)
+                  constraints:
+                    nullable: false
+                    minlength: 1
+
+              # ISO_CODE_2
+              - column:
+                  name: iso_code_2
+                  type: char(2)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uc_country_iso2
+                    nullable: false
+                    minlength: 2
+                    maxlength: 2
+
+              # ISO_CODE_3
+              - column:
+                  name: iso_code_3
+                  type: char(3)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uc_country_iso3
+                    nullable: false
+                    minlength: 3
+                    maxlength: 3
+
+              # Flag Emoji
+              - column:
+                  name: flag_emoji
+                  type: varchar(127)
+                  constraints:
+                    nullable: true
+
+        - rollback:
+            dropTable:
+              tableName: country
+              ifExists: true
