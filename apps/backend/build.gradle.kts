@@ -1,5 +1,14 @@
+val jacocoExclusions = listOf(
+    "com/flightlogger/backend/config/MessageConfig.class",
+    "com/flightlogger/backend/BackendApplication.class",
+    // generated classes
+    "com/flightlogger/backend/api/**",
+    "com/flightlogger/backend/model/**"
+)
+
 plugins {
     java
+    jacoco
     id("org.springframework.boot") version "3.5.8"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.openapi.generator") version "7.17.0"
@@ -13,6 +22,60 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+    reportsDirectory = layout.buildDirectory.dir("jacoco")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // Ensure tests run before generating report
+
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacoco-html"))
+    }
+
+    // Filter out generated classes from the report
+    classDirectories.setFrom(
+        classDirectories.files.map {
+            fileTree(it).matching {
+                exclude(jacocoExclusions)
+            }
+        }
+    )
+}
+
+// Includes passing quality gate
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test) // Runs test before verifying
+
+    violationRules{
+        rule {
+            element = "BUNDLE"
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.85".toBigDecimal()
+            }
+        }
+    }
+
+    classDirectories.setFrom(
+        classDirectories.files.map {
+            fileTree(it).matching {
+                exclude(jacocoExclusions)
+            }
+        }
+    )
+}
+
+// Hook it into the standard check task
+tasks.check {
+    dependsOn(tasks.jacocoTestReport)
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 configurations {
@@ -71,6 +134,7 @@ openApiGenerate {
         "dateLibrary" to "java8",
         "useSpringBoot3" to "true",
         "openApiNullable" to "false", // necessary to disable use of JsonNullable which causes mapping errors
+        "generatedAnnotation" to "true" // necessary to enable @Generated annotation and exclude it from code coverage
     ))
 }
 
