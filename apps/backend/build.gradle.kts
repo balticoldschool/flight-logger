@@ -119,6 +119,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+
+// Required to generate API before running tests
+tasks.withType<JavaCompile> {
+    dependsOn(tasks.openApiGenerate)
+}
+
 openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$rootDir/src/main/resources/api/openapi.yaml")
