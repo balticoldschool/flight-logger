@@ -7,11 +7,3 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog-master-test.yaml
-
-
-  # Show SQL in logs to help debug failed tests
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
