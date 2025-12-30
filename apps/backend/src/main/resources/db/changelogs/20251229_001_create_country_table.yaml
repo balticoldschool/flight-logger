@@ -27,7 +27,7 @@ databaseChangeLog:
               # ISO_CODE_2
               - column:
                   name: iso_code_2
-                  type: char(2)
+                  type: varchar(2)
                   constraints:
                     unique: true
                     uniqueConstraintName: uc_country_iso2
@@ -38,7 +38,7 @@ databaseChangeLog:
               # ISO_CODE_3
               - column:
                   name: iso_code_3
-                  type: char(3)
+                  type: varchar(3)
                   constraints:
                     unique: true
                     uniqueConstraintName: uc_country_iso3
