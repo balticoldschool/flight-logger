@@ -1,9 +1,8 @@
 package com.flightlogger.backend.domain.country.service;
 
 import com.flightlogger.backend.model.CountryReadDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CountryService {
-    List<CountryReadDto> getAllCountries();
+    Page<CountryReadDto> getAllCountries(int page, int size);
 }
