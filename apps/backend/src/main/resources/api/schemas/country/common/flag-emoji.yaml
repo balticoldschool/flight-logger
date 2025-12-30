@@ -1,0 +1,6 @@
+---
+
+type: string
+description: Emoji flag of the country
+example: "🇫🇮"
+nullable: true

@@ -1,0 +1,16 @@
+---
+
+get:
+  tags:
+    - Countries
+  summary: Get a list of all countries
+  operationId: getAllCountries
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/country/country-read-dto.yaml'
