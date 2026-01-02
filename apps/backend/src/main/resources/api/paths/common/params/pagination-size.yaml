@@ -1,6 +1,6 @@
 ---
 
-name: size
+name: pageSize
 in: query
 required: false
 schema:
