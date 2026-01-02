@@ -18,8 +18,8 @@ public class CountryController implements CountriesApi {
     private final CountryService countryService;
 
     @Override
-    public ResponseEntity<PagedCountryReadResponse> getAllCountries(Integer page, Integer size) {
-        Page<CountryReadDto> pagedCountryRead = countryService.getAllCountries(page, size);
+    public ResponseEntity<PagedCountryReadResponse> getAllCountries(Integer page, Integer pageSize) {
+        Page<CountryReadDto> pagedCountryRead = countryService.getAllCountries(page, pageSize);
         PaginationMetadata metadata = PaginationUtils.toMetaData(pagedCountryRead);
 
         return ResponseEntity.ok(new PagedCountryReadResponse(pagedCountryRead.getContent(), metadata));
