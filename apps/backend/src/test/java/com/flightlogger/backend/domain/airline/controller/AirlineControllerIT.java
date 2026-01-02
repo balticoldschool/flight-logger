@@ -91,7 +91,9 @@ class AirlineControllerIT extends BaseControllerIT {
                     performGetRequest(BASE_URL + "/{icao}", invalidIcaoCode),
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
-                    String.format(AIRLINE_NOT_FOUND, invalidIcaoCode.toUpperCase())
+                    String.format(AIRLINE_NOT_FOUND, invalidIcaoCode.toUpperCase()),
+                    dbCountBefore,
+                    airlineRepository::count
                     );
         }
 
@@ -103,7 +105,9 @@ class AirlineControllerIT extends BaseControllerIT {
                     performGetRequest(BASE_URL + "/{icao}", "1abc"),
                     HttpStatus.BAD_REQUEST,
                     BAD_REQUEST_ERROR_TITLE,
-                    INVALID_ICAO_CODE_MESSAGE
+                    INVALID_ICAO_CODE_MESSAGE,
+                    dbCountBefore,
+                    airlineRepository::count
             );
         }
     }
@@ -319,7 +323,10 @@ class AirlineControllerIT extends BaseControllerIT {
                         performPostRequest(BASE_URL, payload),
                         HttpStatus.BAD_REQUEST,
                         VALIDATION_ERROR_TITLE,
-                        expectedDetail);
+                        expectedDetail,
+                        dbCountBefore,
+                        airlineRepository::count
+                );
             }
         }
 
@@ -357,7 +364,9 @@ class AirlineControllerIT extends BaseControllerIT {
                         performPostRequest(BASE_URL, payload),
                         HttpStatus.CONFLICT,
                         CONFLICT_ERROR_TITLE,
-                        expectedDetail
+                        expectedDetail,
+                        dbCountBefore,
+                        airlineRepository::count
                 );
             }
         }
@@ -525,40 +534,28 @@ class AirlineControllerIT extends BaseControllerIT {
             }
         }
 
-        private void performAndValidateUpdateException(String icaoCode, Object body, HttpStatus httpStatus, String title, String detail) throws Exception {
+        private void performAndValidateUpdateException(
+                String icaoCode,
+                Object body,
+                HttpStatus httpStatus,
+                String title, String detail
+        ) throws Exception {
             performAndValidateException(
                     performPutRequest(BASE_URL + "/{icao}", body, icaoCode),
                     httpStatus,
                     title,
-                    detail
+                    detail,
+                    dbCountBefore,
+                    airlineRepository::count
             );
 
             final Airline airlineAfterFailedUpdate = airlineRepository.findById(referenceAirlineIcao).orElse(null);
-            final long dbCountAfterFailedUpdate = airlineRepository.count();
-
             assertThat(airlineAfterFailedUpdate).isNotNull();
-            assertThat(dbCountAfterFailedUpdate).isEqualTo(dbCountBefore);
 
             ///  Verifies the airline entity has not changed by comparing all existing attributes
             assertThat(airlineAfterFailedUpdate)
                     .usingRecursiveComparison()
                     .isEqualTo(referenceAirlineBeforeUpdate);
         }
-    }
-
-    private void performAndValidateException(
-            MockHttpServletResponse response,
-            HttpStatus expectedStatus,
-            String expectedTitle,
-            String expectedDetail) throws Exception {
-        // when
-        ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
-        long dbCountAfter = airlineRepository.count();
-
-        // then
-        assertThat(response.getStatus()).isEqualTo(expectedStatus.value());
-        assertThat(dbCountAfter).isEqualTo(dbCountBefore);
-        assertThat(problemDetail.getTitle()).isEqualTo(expectedTitle);
-        assertThat(problemDetail.getDetail()).isEqualTo(expectedDetail);
     }
 }
