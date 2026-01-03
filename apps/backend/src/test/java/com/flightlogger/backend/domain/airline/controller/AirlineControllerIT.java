@@ -1,6 +1,7 @@
 package com.flightlogger.backend.domain.airline.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.flightlogger.backend.common.utils.AirlineMutator;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.airline.entity.Airline;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -18,6 +22,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.flightlogger.backend.testdata.AirlineTestData.CFG_READ_DTO;
 import static com.flightlogger.backend.testdata.AirlineTestData.DLH_READ_DTO;
@@ -216,11 +221,32 @@ class AirlineControllerIT extends BaseControllerIT {
         }
 
         @Nested
-        @DisplayName("DTO validation exceptions - should not create airline and return 400 Bad Request -")
         class DtoValidation {
 
+            /// A list of test scenarios with invalid AirlineCreateDto
+            private static Stream<Arguments> invalidDtos() {
+                return Stream.of(
+                        Arguments.of("ICAO is null", (AirlineMutator) dto -> dto.setIcao(null), MANDATORY_ICAO_MISSING_MESSAGE),
+                        Arguments.of("ICAO is invalid", (AirlineMutator) dto -> dto.setIcao("1abc"), INVALID_ICAO_CODE_MESSAGE),
+                        Arguments.of("IATA is null", (AirlineMutator) dto -> dto.setIata(null), MANDATORY_IATA_MISSING_MESSAGE),
+                        Arguments.of("ICAO is invalid", (AirlineMutator) dto -> dto.setIata("abcde"), INVALID_IATA_CODE_MESSAGE),
+                        Arguments.of("Name is invalid", (AirlineMutator) dto -> dto.setName(null), MANDATORY_NAME_MISSING_MESSAGE),
+                        Arguments.of("Name is invalid", (AirlineMutator) dto -> dto.setName(""), INVALID_NAME_MESSAGE)
+                );
+            }
+
+            @ParameterizedTest(name = "Should not create airline and return 400 Bad Request when {0}")
+            @MethodSource("invalidDtos")
+            void createAirline_InvalidDto_ReturnBadRequest(String description, AirlineMutator mutator, String expectedMessage) throws Exception {
+                // given
+                mutator.accept(newAirline);
+
+                // when & then
+                performAndValidateDtoValidation(newAirline, expectedMessage);
+            }
+
             @Test
-            @DisplayName("when icao is missing")
+            @DisplayName("Should not create airline and return 400 Bad Request when icao is missing")
             void createAirline_MissingIcao_ReturnBadRequest() throws Exception {
                 // given
                 Map<String, String> invalidPayload = Map.of(
@@ -233,27 +259,7 @@ class AirlineControllerIT extends BaseControllerIT {
             }
 
             @Test
-            @DisplayName("when icao is null")
-            void createAirline_IcaoNull_ReturnBadRequest() throws Exception {
-                // given
-                newAirline.setIcao(null);
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, MANDATORY_ICAO_MISSING_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when icao is invalid")
-            void createAirline_InvalidIcao_ReturnBadRequest() throws Exception {
-                // given
-                newAirline.setIcao("1abc");
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, INVALID_ICAO_CODE_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when iata is missing")
+            @DisplayName("Should not create airline and return 400 Bad Request when iata is missing")
             void createAirline_MissingIata_ReturnBadRequest() throws Exception {
                 // given
                 Map<String, String> invalidPayload = Map.of(
@@ -266,27 +272,7 @@ class AirlineControllerIT extends BaseControllerIT {
             }
 
             @Test
-            @DisplayName("when iata is null")
-            void createAirline_IataNull_ReturnBadRequest() throws Exception {
-                // given
-                newAirline.setIata(null);
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, MANDATORY_IATA_MISSING_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when iata is invalid")
-            void createAirline_InvalidIata_ReturnBadRequest() throws Exception {
-                // given
-                newAirline.setIata("abcde");
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, INVALID_IATA_CODE_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when name is missing")
+            @DisplayName("Should not create airline and return 400 Bad Request when name is missing")
             void createAirline_NameMissing_ReturnBadRequest() throws Exception {
                 // given
                 Map<String, String> invalidPayload = Map.of(
@@ -296,26 +282,6 @@ class AirlineControllerIT extends BaseControllerIT {
 
                 // when & then
                 performAndValidateDtoValidation(invalidPayload, MANDATORY_NAME_MISSING_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when name is null")
-            void createAirline_NameNull_RetrurnBadRequest() throws Exception {
-                // given
-                newAirline.setName(null);
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, MANDATORY_NAME_MISSING_MESSAGE);
-            }
-
-            @Test
-            @DisplayName("when name is invalid")
-            void createAirline_NameInvalid_ReturnBadRequest() throws Exception {
-                // given
-                newAirline.setName("");
-
-                // when & then
-                performAndValidateDtoValidation(newAirline, INVALID_NAME_MESSAGE);
             }
 
             private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
