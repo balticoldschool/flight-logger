@@ -1,0 +1,15 @@
+---
+
+type: object
+required:
+  - content
+  - metadata
+description: Paged response containing a list of countries
+properties:
+  content:
+    type: array
+    description: List of countries
+    items:
+      $ref: "./country-read-dto.yaml"
+  metadata:
+    $ref: "../common/pagination-metadata.yaml"

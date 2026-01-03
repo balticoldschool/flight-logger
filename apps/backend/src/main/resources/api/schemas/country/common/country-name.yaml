@@ -1,0 +1,7 @@
+---
+
+type: string
+description: Name of the country
+example: "Germany"
+maxLength: 127
+minLength: 1

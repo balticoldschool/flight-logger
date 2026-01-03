@@ -4,10 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flightlogger.backend.annotations.IntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.function.LongSupplier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @IntegrationTest
@@ -51,5 +56,26 @@ public abstract class BaseControllerIT {
 
     protected <T> T readResponseBody(MockHttpServletResponse response, Class<T> valueType) throws Exception {
         return objectMapper.readValue(response.getContentAsString(), valueType);
+    }
+
+    protected void performAndValidateException(
+            MockHttpServletResponse response,
+            HttpStatus expectedStatus,
+            String expectedTitle,
+            String expectedDetail,
+            long dbCountBefore,
+            LongSupplier repositoryCountSupplier
+    ) throws Exception {
+        // given
+        long dbCountAfter = repositoryCountSupplier.getAsLong();
+
+        // when
+        ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
+
+        // then
+        assertThat(response.getStatus()).isEqualTo(expectedStatus.value());
+        assertThat(dbCountAfter).isEqualTo(dbCountBefore);
+        assertThat(problemDetail.getTitle()).isEqualTo(expectedTitle);
+        assertThat(problemDetail.getDetail()).isEqualTo(expectedDetail);
     }
 }

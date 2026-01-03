@@ -1,0 +1,17 @@
+---
+
+get:
+  tags:
+    - Countries
+  parameters:
+    - $ref: '../common/params/pagination-page.yaml'
+    - $ref: '../common/params/pagination-size.yaml'
+  summary: Get a paginated list of all countries
+  operationId: getAllCountries
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/country/paged-country-read-response.yaml'
