@@ -1,0 +1,8 @@
+---
+
+name: search
+in: query
+required: false
+description: Search term
+schema:
+  type: string
