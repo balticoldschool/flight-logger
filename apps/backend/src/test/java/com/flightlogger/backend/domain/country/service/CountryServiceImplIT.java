@@ -40,7 +40,7 @@ class CountryServiceImplIT {
             int pageSize = 8;
 
             // when
-            Page<CountryReadDto> result = countryService.getAllCountries(currentPage, pageSize);
+            Page<CountryReadDto> result = countryService.getAllCountries(null, currentPage, pageSize);
 
             // then
             assertThat(result).isNotNull();
@@ -56,12 +56,45 @@ class CountryServiceImplIT {
             int pageSize = 8;
 
             // when
-            Page<CountryReadDto> result = countryService.getAllCountries(currentPage, pageSize);
+            Page<CountryReadDto> result = countryService.getAllCountries(null, currentPage, pageSize);
 
             // then
             assertThat(result).isNotNull();
             assertThat(result.getContent()).isEmpty();
             validatePageMetadata(result, pageSize, currentPage);
+        }
+
+        @Test
+        @DisplayName("Should return exactly canada when searching '🇨🇦'")
+        void getAllCountries_SearchWithUnambiguousPhrase_Success() {
+            // given
+            String searchQuery = "🇨🇦";
+            int currentPage = 0;
+            int pageSize = 8;
+
+            // when
+            Page<CountryReadDto> result = countryService.getAllCountries(searchQuery, currentPage, pageSize);
+
+            // then
+            assertThat(result.getContent())
+                    .hasSize(1)
+                    .extracting(CountryReadDto::getName)
+                    .containsExactly("Canada");
+        }
+
+        @Test
+        @DisplayName("Should return multiple matches and respect relevance (ISO first)")
+        void getAllCountries_SearchWithAmbiguousPhrase_Success() {
+            // given
+            String searchQuery = "DE";
+
+            // when
+            Page<CountryReadDto> result = countryService.getAllCountries(searchQuery, 0, 10);
+
+            // then
+            assertThat(result.getContent()).hasSizeGreaterThan(1);
+            assertThat(result.getContent().getFirst().getIsoCode2()).isEqualTo("DE");
+            assertThat(result.getContent().getFirst().getName()).contains("Germany");
         }
 
         private void validatePageMetadata(Page<?> page, int pageSize, int currentPage) {

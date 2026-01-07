@@ -19,7 +19,7 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public Page<CountryReadDto> getAllCountries(String search, int page, int size) {
-        String sanitizedSearch = search == null ? "" : search.trim();
+        String sanitizedSearch = search == null ? "" : search.strip();
 
         if (sanitizedSearch.isBlank()) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
