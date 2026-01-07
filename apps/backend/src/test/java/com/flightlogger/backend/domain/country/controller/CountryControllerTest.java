@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -99,6 +100,59 @@ class CountryControllerTest extends BaseControllerIT {
             assertThat(responseData.getContent()).isEmpty();
         }
 
+        @Test
+        @DisplayName("Should return correct size when last page holds less countries than page size")
+        void getAllCountries_LastPageHasLessCountriesThanPageSize_Success() throws Exception {
+            // given
+            int pageSize = (int) (dbCountBefore / 2 + 1); // ensures the last page holds less item than page size
+            int lastPageIndex = 1;
+
+            // when
+            MockHttpServletResponse response =
+                    performGetRequest(BASE_URL + "?page={p}&pageSize={s}", lastPageIndex, pageSize);
+            PagedCountryReadResponse responseData = readResponseBody(response, PagedCountryReadResponse.class);
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+            validatePaginationMetaData(lastPageIndex, pageSize, responseData.getMetadata());
+            validateResponseContent(lastPageIndex, pageSize, responseData.getContent());
+        }
+
+        @Nested
+        class WithSearchQuery {
+
+            ///  Set of search phrases
+            private static Stream<Arguments> searchQueryArguments() {
+                return Stream.of(
+                        Arguments.of("  GerManY   "),
+                        Arguments.of("🇨🇦"),
+                        Arguments.of("land")
+                );
+            }
+
+            @ParameterizedTest(name = "Should return list of countries where each result contains {0}")
+            @MethodSource("searchQueryArguments")
+            void getAllCountries_SaerchQuery_Success(Object searchPhrase) throws Exception {
+                // given
+                Pageable pageable = PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE);
+                String search = searchPhrase.toString().strip();
+
+                List<CountryReadDto> expectedCountries = countryRepository
+                        .searchWithString(search, pageable)
+                        .stream()
+                        .map(countryMapper::toDto)
+                        .toList();
+
+                // when
+                MockHttpServletResponse response = performGetRequest(BASE_URL + "?search={s}", search);
+                PagedCountryReadResponse responseContent = readResponseBody(response, PagedCountryReadResponse.class);
+
+                // then
+                assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+                assertThat(responseContent.getContent()).containsExactlyElementsOf(expectedCountries);
+            }
+        }
+
         @Nested
         class InvalidPageSize {
 
@@ -167,11 +221,11 @@ class CountryControllerTest extends BaseControllerIT {
          * @param responseContent DTOs returned by the controller.
          */
         private void validateResponseContent(int currentPage, int expectedPageSize, List<CountryReadDto> responseContent) {
-            Pageable pageable = PageRequest.of(currentPage, expectedPageSize);
+            Pageable pageable = PageRequest.of(currentPage, expectedPageSize, Sort.by("name").ascending());
             List<CountryReadDto> countries = countryRepository.findAll(pageable).getContent().stream().map(countryMapper::toDto).toList();
 
             assertThat(responseContent).isNotNull();
-            assertThat(responseContent).hasSize(expectedPageSize);
+            assertThat(responseContent).hasSize(countries.size());
             assertThat(responseContent).containsExactlyElementsOf(countries);
         }
     }

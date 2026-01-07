@@ -4,6 +4,7 @@ get:
   tags:
     - Countries
   parameters:
+    - $ref: '../common/params/search.yaml'
     - $ref: '../common/params/pagination-page.yaml'
     - $ref: '../common/params/pagination-size.yaml'
   summary: Get a paginated list of all countries
