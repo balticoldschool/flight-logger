@@ -16,3 +16,5 @@ paths:
     $ref: './paths/airlines/airlinesByIcao.yaml'
   /countries:
     $ref: './paths/countries/countries.yaml'
+  /countries/{id}:
+    $ref: './paths/countries/countriesById.yaml'
