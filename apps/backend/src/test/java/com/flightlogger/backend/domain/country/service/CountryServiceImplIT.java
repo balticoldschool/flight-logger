@@ -2,6 +2,7 @@ package com.flightlogger.backend.domain.country.service;
 
 import com.flightlogger.backend.annotations.IntegrationTest;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
+import com.flightlogger.backend.domain.country.exception.CountryNotFoundException;
 import com.flightlogger.backend.model.CountryReadDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
+import java.util.UUID;
+
+import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @IntegrationTest
 class CountryServiceImplIT {
@@ -105,5 +110,40 @@ class CountryServiceImplIT {
             assertThat(page.getNumber()).isEqualTo(currentPage);
             assertThat(page.getSize()).isEqualTo(pageSize);
         }
+    }
+
+    @Nested
+    @DisplayName("DeleteCountry")
+    class DeleteCountry {
+
+        @BeforeEach
+        void setUp() {
+            assertThat(countryRepository.existsById(CANADA_COUNTRY.getId())).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should delete country form database")
+        void deleteCountryById_Success() {
+            // when
+            countryService.deleteCountryById(CANADA_COUNTRY.getId());
+
+            // then
+            assertThat(countryRepository.existsById(CANADA_COUNTRY.getId())).isFalse();
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore -1);
+        }
+
+        @Test
+        @DisplayName("Should throw an exception that no country was found")
+        void deleteCountryById_CountryDoesNotExist_ThrowCountryNotFoundException() {
+            // given
+            UUID nonExistingId = new UUID(0L, 0L);
+
+            // when & then
+            assertThatThrownBy(() -> countryService.deleteCountryById(nonExistingId))
+                    .isInstanceOf(CountryNotFoundException.class)
+                    .hasMessage("Country with id " + nonExistingId + " does not exist");
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
+        }
+
     }
 }
