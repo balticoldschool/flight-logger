@@ -11,11 +11,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 public class CountryController implements CountriesApi {
 
     private final CountryService countryService;
+
+    @Override
+    public ResponseEntity<Void> deleteCountryById(UUID id) {
+        countryService.deleteCountryById(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @Override
     public ResponseEntity<PagedCountryReadResponse> getAllCountries(String search, Integer page, Integer pageSize) {

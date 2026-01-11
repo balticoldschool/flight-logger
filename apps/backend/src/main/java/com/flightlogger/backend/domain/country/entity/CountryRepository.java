@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface CountryRepository extends JpaRepository<Country, String> {
+import java.util.UUID;
+
+public interface CountryRepository extends JpaRepository<Country, UUID> {
 
     @Query("""
         SELECT c FROM Country c
