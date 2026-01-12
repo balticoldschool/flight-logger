@@ -1,0 +1,31 @@
+---
+
+parameters:
+  - $ref: '../common/params/id.yaml'
+
+delete:
+  tags:
+    - Countries
+  summary: Delete a country by its ID
+  operationId: deleteCountryById
+  responses:
+    204:
+      description: Country deleted
+    400:
+      description: Invalid ID supplied
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    404:
+      description: Country not found
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    409:
+      description: Country is still in use
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'

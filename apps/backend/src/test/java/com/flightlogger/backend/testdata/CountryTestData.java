@@ -8,7 +8,7 @@ import java.util.UUID;
 public class CountryTestData {
 
     public static final Country CANADA_COUNTRY = new Country(
-            UUID.randomUUID(),
+            UUID.fromString("f85e30a9-8083-46a4-b743-bb74bf787c9c"),
             "Canada",
             "CA",
             "CAN",

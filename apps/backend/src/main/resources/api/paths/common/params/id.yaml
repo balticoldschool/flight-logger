@@ -1,0 +1,8 @@
+---
+
+name: id
+in: path
+required: true
+description: UUID of the resource
+schema:
+  $ref: '../../../schemas/common/uuid.yaml'
