@@ -144,6 +144,5 @@ class CountryServiceImplIT {
                     .hasMessage("Country with id " + nonExistingId + " does not exist");
             assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
         }
-
     }
 }

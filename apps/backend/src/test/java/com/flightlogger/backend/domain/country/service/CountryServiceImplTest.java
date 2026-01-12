@@ -113,12 +113,13 @@ class CountryServiceImplTest {
             // given
             UUID canadaId = CANADA_COUNTRY.getId();
             when(countryRepository.existsById(canadaId)).thenReturn(true);
-            doThrow(DataIntegrityViolationException.class).when(countryRepository).deleteById(any(UUID.class));
+            doThrow(DataIntegrityViolationException.class).when(countryRepository).flush();
 
             // when & then
             assertThatThrownBy(() -> countryService.deleteCountryById(canadaId))
                     .isInstanceOf(CountryConflictException.class)
                     .hasMessage(String.format(COUNTRY_CONFLICT_MESSAGE, canadaId));
+            verify(countryRepository, times(1)).flush();
         }
     }
 }
