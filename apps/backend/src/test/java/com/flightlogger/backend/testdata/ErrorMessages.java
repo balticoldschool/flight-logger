@@ -12,6 +12,7 @@ public class ErrorMessages {
     public static final String AIRLINE_ICAO_ALREADY_EXISTS_MESSAGE = "Airline with ICAO %s already exists";
     public static final String AIRLINE_IATA_ALREADY_EXISTS_MESSAGE = "Airline with IATA %s already exists";
     public static final String AIRLINE_NOT_FOUND = "Airline with ICAO code %s not found";
+    public static final String COUNTRY_CONFLICT_MESSAGE = "Country with id %s still used in a foreign key relation";
     public final static String INVALID_IATA_CODE_MESSAGE = "Invalid IATA code";
     public final static String INVALID_ICAO_CODE_MESSAGE = "Invalid ICAO code";
     public final static String INVALID_NAME_MESSAGE = "Invalid Name field";
