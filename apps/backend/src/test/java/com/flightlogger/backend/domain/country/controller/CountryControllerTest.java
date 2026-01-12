@@ -21,8 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
 import static com.flightlogger.backend.testdata.ErrorMessages.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -228,6 +230,72 @@ class CountryControllerTest extends BaseControllerIT {
             assertThat(responseContent).hasSize(countries.size());
             assertThat(responseContent).containsExactlyElementsOf(countries);
         }
+    }
+
+    @Nested
+    @DisplayName("Delete country by id")
+    class DeleteCountryById {
+
+        @Test
+        @DisplayName("Should remove country and return 204 no content")
+        void deleteCountryById_Success() throws Exception {
+            // given
+            assertThat(countryRepository.existsById(CANADA_COUNTRY.getId())).isTrue();
+
+            // when
+            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{id}", CANADA_COUNTRY.getId());
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            assertThat(response.getContentAsString()).isEmpty();
+            assertThat(countryRepository.existsById(CANADA_COUNTRY.getId())).isFalse();
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore -1);
+        }
+
+        @Test
+        @DisplayName("Should return 404 not found when id does not exists")
+        void deleteCountryById_CountryDoesNotExist_ReturnNotFound() throws Exception {
+            // given
+            UUID nonExistingId = new UUID(0L, 0L);
+
+            // when & then
+            performAndValidateException(
+                    performDeleteRequest(BASE_URL + "/{id}", nonExistingId),
+                    HttpStatus.NOT_FOUND,
+                    NOT_FOUND_ERROR_TITLE,
+                    String.format(COUNTRY_NOT_FOUND_MESSAGE, nonExistingId),
+                    dbCountBefore,
+                    () -> countryRepository.count()
+            );
+        }
+
+        @Nested
+        class InvalidCountryId {
+
+            /// A list of invalid country ids
+            private static Stream<Arguments> invalidCountryIds() {
+                return Stream.of(
+                        Arguments.of("ID is invalid", "foo"),
+                        Arguments.of("ID is invalid", "123-abc-!!!-???"),
+                        Arguments.of("ID includes illegal character", "z85e30a9-8083-46a4-b743-bb74bf787c9c")
+                );
+            }
+
+            @ParameterizedTest(name = "Should return 400 bad request when {0} - {1}")
+            @MethodSource("invalidCountryIds")
+            void deleteCountryById_InvalidId_ReturnBadRequest(String testTitle, String id) throws Exception {
+                // when & then
+                performAndValidateException(
+                        performDeleteRequest(BASE_URL + "/{id}", id),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        INVALID_ID_MESSAGE,
+                        dbCountBefore,
+                        () -> countryRepository.count()
+                );
+            }
+        }
+
     }
 
     /**
