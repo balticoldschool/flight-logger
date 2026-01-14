@@ -27,4 +27,8 @@ public interface CountryRepository extends JpaRepository<Country, UUID> {
                     c.name  ASC
    \s""")
     Page<Country> searchWithString(@Param("query") String searchTerm, Pageable pageable);
+
+    boolean existsByIsoCode2(String iso2Code);
+
+    boolean existsByIsoCode3(String iso3Code);
 }
