@@ -16,3 +16,35 @@ get:
         application/json:
           schema:
             $ref: '../../schemas/country/paged-country-read-response.yaml'
+
+post:
+  tags:
+    - Countries
+  summary: Create a new country
+  operationId: createCountry
+  requestBody:
+    required: true
+    description: Country to create
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/country/country-create-dto.yaml'
+  responses:
+    201:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/country/country-read-dto.yaml'
+    400:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
+    409:
+      description: Country with ISO 2 or 3 code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/problem-details.yaml'
