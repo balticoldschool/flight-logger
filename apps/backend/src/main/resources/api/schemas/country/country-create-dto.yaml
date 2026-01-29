@@ -1,0 +1,17 @@
+---
+
+type: object
+required:
+  - name
+  - isoCode2
+  - isoCode3
+  - flagEmoji
+properties:
+  name:
+    $ref: './common/country-name.yaml'
+  isoCode2:
+    $ref: './common/iso-code-2.yaml'
+  isoCode3:
+    $ref: './common/iso-code-3.yaml'
+  flagEmoji:
+    $ref: './common/flag-emoji.yaml'

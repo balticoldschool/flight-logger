@@ -23,4 +23,10 @@ public class CountryExceptionHandler {
     ProblemDetail handleCountryConflictException(CountryConflictException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(CountryAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ProblemDetail handleCountryAlreadyExistsException(CountryAlreadyExistsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }

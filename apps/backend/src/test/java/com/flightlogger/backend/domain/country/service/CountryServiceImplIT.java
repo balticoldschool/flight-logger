@@ -2,7 +2,9 @@ package com.flightlogger.backend.domain.country.service;
 
 import com.flightlogger.backend.annotations.IntegrationTest;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
+import com.flightlogger.backend.domain.country.exception.CountryAlreadyExistsException;
 import com.flightlogger.backend.domain.country.exception.CountryNotFoundException;
+import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import java.util.UUID;
 
 import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
+import static com.flightlogger.backend.testdata.ErrorMessages.COUNTRY_ALREADY_EXISTS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -143,6 +146,63 @@ class CountryServiceImplIT {
                     .isInstanceOf(CountryNotFoundException.class)
                     .hasMessage("Country with id " + nonExistingId + " does not exist");
             assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
+        }
+    }
+
+    @Nested
+    @DisplayName("SaveCountry")
+    class SaveCountry {
+        CountryCreateDto createDto;
+
+        @BeforeEach
+        void setUp() {
+            createDto = new CountryCreateDto("Foo Country", "xx", "yyy", "✅");
+        }
+
+        @Test
+        @DisplayName("Should save new country successfully")
+        void saveCountry_Success() {
+            // given
+            assertThat(countryRepository.existsByIsoCode2(createDto.getIsoCode2())).isFalse();
+            assertThat(countryRepository.existsByIsoCode3(createDto.getIsoCode3())).isFalse();
+
+            // when
+            CountryReadDto savedCountry = countryService.saveCountry(createDto);
+
+            // then
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore + 1);
+            assertThat(countryRepository.existsByIsoCode2(createDto.getIsoCode2().toUpperCase())).isTrue();
+            assertThat(countryRepository.existsByIsoCode3(createDto.getIsoCode3().toUpperCase())).isTrue();
+            assertThat(savedCountry.getName()).isEqualTo(createDto.getName());
+            assertThat(savedCountry.getFlagEmoji()).isEqualTo(createDto.getFlagEmoji());
+            assertThat(savedCountry.getIsoCode2()).isEqualTo(createDto.getIsoCode2().toUpperCase());
+            assertThat(savedCountry.getIsoCode3()).isEqualTo(createDto.getIsoCode3().toUpperCase());
+            assertThat(savedCountry.getId()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should throw CountryAlreadyExistsException when ISO2 code already exists")
+        void saveCountry_Iso2Exists_ThrowCountryAlreadyExistsException() {
+            // given
+            createDto.setIsoCode2(CANADA_COUNTRY.getIsoCode2());
+
+            // when & then
+            assertThatThrownBy(() -> countryService.saveCountry(createDto))
+                    .isInstanceOf(CountryAlreadyExistsException.class)
+                    .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, createDto.getIsoCode2()));
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
+        }
+
+        @Test
+        @DisplayName("Should throw CountryAlreadyExistsException when ISO3 code already exists")
+        void saveCountry_Iso3Exists_ThrowCountryAlreadyExistsException() {
+            // given
+            createDto.setIsoCode3(CANADA_COUNTRY.getIsoCode3());
+
+            // when & then
+            assertThatThrownBy(() -> countryService.saveCountry(createDto))
+                    .isInstanceOf(CountryAlreadyExistsException.class)
+                    .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, createDto.getIsoCode3()));
         }
     }
 }

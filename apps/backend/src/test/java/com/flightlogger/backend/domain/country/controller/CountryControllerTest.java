@@ -3,6 +3,7 @@ package com.flightlogger.backend.domain.country.controller;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.country.entity.CountryMapper;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
+import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
 import com.flightlogger.backend.model.PagedCountryReadResponse;
 import com.flightlogger.backend.model.PaginationMetadata;
@@ -19,8 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
+import utils.CountryMutator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -283,7 +286,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             @ParameterizedTest(name = "Should return 400 bad request when {0} - {1}")
             @MethodSource("invalidCountryIds")
-            void deleteCountryById_InvalidId_ReturnBadRequest(String testTitle, String id) throws Exception {
+            void deleteCountryById_InvalidId_ReturnBadRequest(Object ignored, String id) throws Exception {
                 // when & then
                 performAndValidateException(
                         performDeleteRequest(BASE_URL + "/{id}", id),
@@ -297,6 +300,176 @@ class CountryControllerTest extends BaseControllerIT {
         }
 
     }
+
+    @Nested
+    @DisplayName("Create Country")
+    class CreateCountry {
+
+        CountryCreateDto createDto;
+
+        @BeforeEach
+        void setUp() {
+            createDto = new CountryCreateDto("Foo Bar Country", "XX", "YYY", "✅");
+        }
+
+        @Test
+        @DisplayName("Should create new country and return 201")
+        void createCountry_Success() throws Exception {
+            // when
+            MockHttpServletResponse response = performPostRequest(BASE_URL, createDto);
+            CountryReadDto createdCountry = readResponseBody(response, CountryReadDto.class);
+            long dbCountAfter = countryRepository.count();
+
+            // then
+            assertThat(dbCountAfter).isEqualTo(dbCountBefore + 1);
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+
+            assertThat(createdCountry.getId()).isNotNull();
+            assertThat(createdCountry.getName()).isEqualTo(createDto.getName());
+            assertThat(createdCountry.getIsoCode2()).isEqualTo(createDto.getIsoCode2());
+            assertThat(createdCountry.getIsoCode3()).isEqualTo(createDto.getIsoCode3());
+            assertThat(createdCountry.getFlagEmoji()).isEqualTo(createDto.getFlagEmoji());
+        }
+
+        @Nested
+        class DtoValidation {
+
+            ///  A list of test scenarios with invalid CountryCreateDto
+            private static Stream<Arguments> invalidDtos() {
+                return Stream.of(
+                        Arguments.of("Name is null", (CountryMutator) dto -> dto.name(null), MANDATORY_NAME_MISSING_MESSAGE),
+                        Arguments.of("Name is blank", (CountryMutator) dto -> dto.name(""), INVALID_NAME_MESSAGE),
+                        Arguments.of("ISO-2 code is null", (CountryMutator) dto -> dto.isoCode2(null), MANDATORY_ISO2_MISSING_MESSAGE),
+                        Arguments.of("ISO-2 code is too short", (CountryMutator) dto -> dto.isoCode2("X"), INVALID_ISO2_MESSAGE),
+                        Arguments.of("ISO-2 code is too long", (CountryMutator) dto -> dto.isoCode2("XXX"), INVALID_ISO2_MESSAGE),
+                        Arguments.of("ISO-2 code is invalid", (CountryMutator) dto -> dto.isoCode2("xx"), INVALID_ISO2_MESSAGE),
+                        Arguments.of("ISO-3 code is null", (CountryMutator) dto -> dto.isoCode3(null), MANDATORY_ISO3_MISSING_MESSAGE),
+                        Arguments.of("ISO-3 code is too short", (CountryMutator) dto -> dto.isoCode3("YY"), INVALID_ISO3_MESSAGE),
+                        Arguments.of("ISO-3 code is too long", (CountryMutator) dto -> dto.isoCode3("YYYY"), INVALID_ISO3_MESSAGE),
+                        Arguments.of("ISO-3 code is invalid", (CountryMutator) dto -> dto.isoCode3("yyy"), INVALID_ISO3_MESSAGE),
+                        Arguments.of("Flag is null", (CountryMutator) dto -> dto.flagEmoji(null), MANDATORY_FLAGEMOJI_MISSING_MESSAGE)
+                );
+            }
+
+            @ParameterizedTest(name = "Should not create country and return 400 Bad Request when {0}")
+            @MethodSource("invalidDtos")
+            void createCountry_InvalidDto_ReturnBadRequest(Object ignored, CountryMutator mutator, String expectedMessage) throws Exception {
+                // given
+                mutator.accept(createDto);
+
+                // when & then
+                performAndValidateDtoValidation(createDto, expectedMessage);
+            }
+
+            @Test
+            @DisplayName("Should not create country and return 400 Bad Request when name is missing")
+            void createCountry_NameMissing_ReturnBadRequest() throws Exception {
+                // given
+                final Map<String, String> invalidPayload = Map.of(
+                        "isoCode2", "XX",
+                        "isoCode3", "YYY",
+                        "flagEmoji", "✅"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_NAME_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("Should not create country and return 400 Bad Request when ISO-2 code is missing")
+            void createCountry_Iso2CodeMissing_ReturnBadRequest() throws Exception {
+                // given
+                final Map<String, String> invalidPayload = Map.of(
+                        "name", "Foo Bar Country",
+                        "isoCode3", "YYY",
+                        "flagEmoji", "✅"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_ISO2_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("Should not create country and return 400 Bad Request when ISO-3 code is missing")
+            void createCountry_Iso3CodeMissing_ReturnBadRequest() throws Exception {
+                // given
+                final Map<String, String> invalidPayload = Map.of(
+                        "name", "Foo Bar Country",
+                        "isoCode2", "XX",
+                        "flagEmoji", "✅"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_ISO3_MISSING_MESSAGE);
+            }
+
+            @Test
+            @DisplayName("Should not create country and return 400 Bad Request when flag emoji is missing")
+            void createCountry_FlagEmojiMissing_ReturnBadRequest() throws Exception {
+                // given
+                final Map<String, String> invalidPayload = Map.of(
+                        "name", "Foo Bar Country",
+                        "isoCode2", "XX",
+                        "isoCode3", "YYY"
+                );
+
+                // when & then
+                performAndValidateDtoValidation(invalidPayload, MANDATORY_FLAGEMOJI_MISSING_MESSAGE);
+            }
+
+            private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
+                performAndValidateException(
+                        performPostRequest(BASE_URL, payload),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        expectedDetail,
+                        dbCountBefore,
+                        countryRepository::count
+                );
+            }
+        }
+
+        @Nested
+        @DisplayName("Conflicts -should not create country and return 409")
+        class Conflicts {
+
+            @Test
+            @DisplayName("when iso 2 code exists")
+            void createCountry_Iso2Exists_ReturnConflict() throws Exception {
+                // given
+                final String isoCode2 = CANADA_COUNTRY.getIsoCode2();
+                createDto.setIsoCode2(isoCode2);
+                final String expectedProblemDetail = String.format(COUNTRY_ALREADY_EXISTS, isoCode2);
+
+                // when & then
+                performAndValidateConflict(createDto, expectedProblemDetail);
+            }
+
+            @Test
+            @DisplayName("when iso 3 code exists")
+            void createCountry_Iso3Exists_ReturnConflict() throws Exception {
+                // given
+                final String isoCode3 = CANADA_COUNTRY.getIsoCode3();
+                createDto.setIsoCode3(isoCode3);
+                final String expectedProblemDetail = String.format(COUNTRY_ALREADY_EXISTS, isoCode3);
+
+                // when & then
+                performAndValidateConflict(createDto, expectedProblemDetail);
+            }
+
+            private void performAndValidateConflict(Object payload, String expectedDetail) throws Exception {
+                performAndValidateException(
+                        performPostRequest(BASE_URL, payload),
+                        HttpStatus.CONFLICT,
+                        CONFLICT_ERROR_TITLE,
+                        expectedDetail,
+                        dbCountBefore,
+                        countryRepository::count
+                );
+            }
+        }
+    }
+
 
     /**
      * Verifies pagination metadata against the request parameters and database state.
