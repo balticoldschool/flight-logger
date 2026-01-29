@@ -1,7 +1,6 @@
 package com.flightlogger.backend.domain.airline.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.flightlogger.backend.common.utils.AirlineMutator;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.airline.entity.Airline;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
@@ -19,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletResponse;
+import utils.AirlineMutator;
 
 import java.util.List;
 import java.util.Map;
@@ -237,7 +237,7 @@ class AirlineControllerIT extends BaseControllerIT {
 
             @ParameterizedTest(name = "Should not create airline and return 400 Bad Request when {0}")
             @MethodSource("invalidDtos")
-            void createAirline_InvalidDto_ReturnBadRequest(String description, AirlineMutator mutator, String expectedMessage) throws Exception {
+            void createAirline_InvalidDto_ReturnBadRequest(Object ignored, AirlineMutator mutator, String expectedMessage) throws Exception {
                 // given
                 mutator.accept(newAirline);
 
@@ -307,7 +307,7 @@ class AirlineControllerIT extends BaseControllerIT {
                 String lufthansaIcao = DLH_READ_DTO.getIcao();
                 newAirline.setIcao(lufthansaIcao.toUpperCase());
                 String expectedProblemDetail =
-                        String.format(AIRLINE_ICAO_ALREADY_EXISTS_MESSAGE, DLH_READ_DTO.getIcao());
+                        String.format(AIRLINE_ICAO_ALREADY_EXISTS_MESSAGE, lufthansaIcao);
 
                 // when & then
                 performAndValidateConflict(newAirline, expectedProblemDetail);

@@ -4,6 +4,8 @@ common:
   iata_invalid: &iata_invalid "Invalid IATA code"
   icao_invalid: &icao_invalid "Invalid ICAO code"
   id_invalid: &id_invalid "Invalid ID"
+  iso2_invalid: &iso2_invalid "Invalid ISO-2 code"
+  iso3_invalid: &iso3_invalid "Invalid ISO-3 code"
   name_invalid: &name_invalid "Invalid Name field"
   page_number_invalid: &page_number_invalid "Invalid page number"
   page_size_invalid: &page_size_invalid "Invalid page size"
@@ -12,16 +14,23 @@ NotNull:
   icao: *mandatory_field
   iata: *mandatory_field
   name: *mandatory_field
+  isoCode2: *mandatory_field
+  isoCode3: *mandatory_field
+  flagEmoji: *mandatory_field
 
 Size:
   icao: *icao_invalid
   iata: *iata_invalid
   name: *name_invalid
+  isoCode2: *iso2_invalid
+  isoCode3: *iso3_invalid
 
 Pattern:
   icao: *icao_invalid
   iata: *iata_invalid
   name: *name_invalid
+  isoCode2: *iso2_invalid
+  isoCode3: *iso3_invalid
 
 Min:
   pageSize: *page_size_invalid

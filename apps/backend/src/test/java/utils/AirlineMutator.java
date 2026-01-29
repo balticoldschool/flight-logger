@@ -1,4 +1,4 @@
-package com.flightlogger.backend.common.utils;
+package utils;
 
 import com.flightlogger.backend.model.AirlineCreateDto;
 
