@@ -2,6 +2,7 @@ package com.flightlogger.backend.domain.country.service;
 
 import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
+import com.flightlogger.backend.model.CountryUpdateDto;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
@@ -12,4 +13,6 @@ public interface CountryService {
     void deleteCountryById(UUID id);
 
     CountryReadDto saveCountry(CountryCreateDto dto);
+
+    CountryReadDto updateCountryById(UUID id, CountryUpdateDto dto);
 }

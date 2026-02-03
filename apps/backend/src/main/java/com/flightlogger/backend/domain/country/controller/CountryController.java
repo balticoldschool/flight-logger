@@ -3,10 +3,7 @@ package com.flightlogger.backend.domain.country.controller;
 import com.flightlogger.backend.api.CountriesApi;
 import com.flightlogger.backend.common.utils.PaginationUtils;
 import com.flightlogger.backend.domain.country.service.CountryService;
-import com.flightlogger.backend.model.CountryCreateDto;
-import com.flightlogger.backend.model.CountryReadDto;
-import com.flightlogger.backend.model.PagedCountryReadResponse;
-import com.flightlogger.backend.model.PaginationMetadata;
+import com.flightlogger.backend.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -40,5 +37,10 @@ public class CountryController implements CountriesApi {
         PaginationMetadata metadata = PaginationUtils.toMetaData(pagedCountryRead);
 
         return ResponseEntity.ok(new PagedCountryReadResponse(pagedCountryRead.getContent(), metadata));
+    }
+
+    @Override
+    public ResponseEntity<CountryReadDto> updateCountryById(UUID id, CountryUpdateDto countryUpdateDto) {
+        return ResponseEntity.ok().body(countryService.updateCountryById(id, countryUpdateDto));
     }
 }
