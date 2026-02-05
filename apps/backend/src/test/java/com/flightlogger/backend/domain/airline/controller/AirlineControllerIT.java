@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletResponse;
-import utils.AirlineMutator;
+import utils.GenericObjectMutator;
 
 import java.util.List;
 import java.util.Map;
@@ -226,18 +226,18 @@ class AirlineControllerIT extends BaseControllerIT {
             /// A list of test scenarios with invalid AirlineCreateDto
             private static Stream<Arguments> invalidDtos() {
                 return Stream.of(
-                        Arguments.of("ICAO is null", (AirlineMutator) dto -> dto.setIcao(null), MANDATORY_ICAO_MISSING_MESSAGE),
-                        Arguments.of("ICAO is invalid", (AirlineMutator) dto -> dto.setIcao("1abc"), INVALID_ICAO_CODE_MESSAGE),
-                        Arguments.of("IATA is null", (AirlineMutator) dto -> dto.setIata(null), MANDATORY_IATA_MISSING_MESSAGE),
-                        Arguments.of("ICAO is invalid", (AirlineMutator) dto -> dto.setIata("abcde"), INVALID_IATA_CODE_MESSAGE),
-                        Arguments.of("Name is invalid", (AirlineMutator) dto -> dto.setName(null), MANDATORY_NAME_MISSING_MESSAGE),
-                        Arguments.of("Name is invalid", (AirlineMutator) dto -> dto.setName(""), INVALID_NAME_MESSAGE)
+                        Arguments.of("ICAO is null", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setIcao(null), MANDATORY_ICAO_MISSING_MESSAGE),
+                        Arguments.of("ICAO is invalid", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setIcao("1abc"), INVALID_ICAO_CODE_MESSAGE),
+                        Arguments.of("IATA is null", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setIata(null), MANDATORY_IATA_MISSING_MESSAGE),
+                        Arguments.of("ICAO is invalid", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setIata("abcde"), INVALID_IATA_CODE_MESSAGE),
+                        Arguments.of("Name is invalid", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setName(null), MANDATORY_NAME_MISSING_MESSAGE),
+                        Arguments.of("Name is invalid", (GenericObjectMutator<AirlineCreateDto>) dto -> dto.setName(""), INVALID_NAME_MESSAGE)
                 );
             }
 
             @ParameterizedTest(name = "Should not create airline and return 400 Bad Request when {0}")
             @MethodSource("invalidDtos")
-            void createAirline_InvalidDto_ReturnBadRequest(Object ignored, AirlineMutator mutator, String expectedMessage) throws Exception {
+            void createAirline_InvalidDto_ReturnBadRequest(Object ignored, GenericObjectMutator<AirlineCreateDto> mutator, String expectedMessage) throws Exception {
                 // given
                 mutator.accept(newAirline);
 

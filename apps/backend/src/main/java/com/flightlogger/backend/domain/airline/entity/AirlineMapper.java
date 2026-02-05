@@ -1,12 +1,15 @@
 package com.flightlogger.backend.domain.airline.entity;
 
+import com.flightlogger.backend.common.utils.StringFormatter;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
 import com.flightlogger.backend.model.AirlineUpdateDto;
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = StringFormatter.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AirlineMapper {
 
     @Mapping(target = "icao", source = "icaoCode")
@@ -19,9 +22,4 @@ public interface AirlineMapper {
 
     @Mapping(target = "iataCode", source = "iata", qualifiedByName = "toUpperCase")
     void updateFromDto(AirlineUpdateDto dto, @MappingTarget Airline airline);
-
-    @Named("toUpperCase")
-    default String toUpperCase(String value) {
-        return value != null ? StringUtils.upperCase(value) : null;
-    }
 }

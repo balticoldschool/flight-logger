@@ -118,7 +118,7 @@ class CountryServiceImplTest {
             // when & then
             assertThatThrownBy(() -> countryService.deleteCountryById(canadaId))
                     .isInstanceOf(CountryConflictException.class)
-                    .hasMessage(String.format(COUNTRY_CONFLICT_MESSAGE, canadaId));
+                    .hasMessage(COUNTRY_CONFLICT_MESSAGE);
             verify(countryRepository, times(1)).flush();
         }
     }

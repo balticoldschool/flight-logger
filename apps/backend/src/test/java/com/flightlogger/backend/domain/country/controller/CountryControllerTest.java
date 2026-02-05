@@ -1,12 +1,10 @@
 package com.flightlogger.backend.domain.country.controller;
 
 import com.flightlogger.backend.config.BaseControllerIT;
+import com.flightlogger.backend.domain.country.entity.Country;
 import com.flightlogger.backend.domain.country.entity.CountryMapper;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
-import com.flightlogger.backend.model.CountryCreateDto;
-import com.flightlogger.backend.model.CountryReadDto;
-import com.flightlogger.backend.model.PagedCountryReadResponse;
-import com.flightlogger.backend.model.PaginationMetadata;
+import com.flightlogger.backend.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,14 +18,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
-import utils.CountryMutator;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
+import static com.flightlogger.backend.testdata.CountryTestData.GERMANY_COUNTRY;
 import static com.flightlogger.backend.testdata.ErrorMessages.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -334,6 +333,10 @@ class CountryControllerTest extends BaseControllerIT {
         @Nested
         class DtoValidation {
 
+            @FunctionalInterface
+            public interface CountryMutator extends Consumer<CountryCreateDto> {
+            }
+
             ///  A list of test scenarios with invalid CountryCreateDto
             private static Stream<Arguments> invalidDtos() {
                 return Stream.of(
@@ -467,6 +470,228 @@ class CountryControllerTest extends BaseControllerIT {
                         countryRepository::count
                 );
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("Update Country")
+    class UpdateCountry {
+        CountryUpdateDto updateDto;
+        UUID referenceCountryId = CANADA_COUNTRY.getId();
+        Country referenceCountryBeforeUpdate = countryRepository.findById(referenceCountryId).orElse(null);
+
+        @BeforeEach
+        void setUp() {
+            assertThat(referenceCountryBeforeUpdate).isNotNull();
+            updateDto = new CountryUpdateDto(
+                    "Updated Name",
+                    "YY",
+                    "XXX",
+                    "🙈"
+            );
+        }
+
+        @Test
+        @DisplayName("Should update airline and return status ok")
+        void updateCountry_Success() throws Exception {
+            // given
+
+            // when
+            MockHttpServletResponse response =
+                    performPutRequest(BASE_URL + "/{id}", updateDto, referenceCountryId.toString());
+            CountryReadDto responseBody = readResponseBody(response, CountryReadDto.class);
+            Country countryAfterUpdate = countryRepository.findById(referenceCountryId).orElse(null);
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+            assertThat(countryAfterUpdate).isNotNull();
+
+            assertThat(responseBody.getId()).isEqualTo(referenceCountryId);
+            assertThat(responseBody.getName()).isEqualTo(updateDto.getName());
+            assertThat(responseBody.getIsoCode2()).isEqualTo(updateDto.getIsoCode2());
+            assertThat(responseBody.getIsoCode3()).isEqualTo(updateDto.getIsoCode3());
+            assertThat(responseBody.getFlagEmoji()).isEqualTo(updateDto.getFlagEmoji());
+
+            assertThat(countryAfterUpdate.getId()).isEqualTo(referenceCountryId);
+            assertThat(countryAfterUpdate.getName()).isEqualTo(updateDto.getName());
+            assertThat(countryAfterUpdate.getIsoCode2()).isEqualTo(updateDto.getIsoCode2());
+            assertThat(countryAfterUpdate.getIsoCode3()).isEqualTo(updateDto.getIsoCode3());
+            assertThat(countryAfterUpdate.getFlagEmoji()).isEqualTo(updateDto.getFlagEmoji());
+        }
+
+        @Test
+        @DisplayName("Should return country not found when ID does not exist")
+        void updateCountry_CountryNotFound_CountryNotFoundResponse() throws Exception {
+            // given
+            final UUID invalidId = new UUID(0L, 0L);
+
+            // when & then
+            performAndValidateUpdateException(
+                    invalidId.toString(),
+                    updateDto,
+                    HttpStatus.NOT_FOUND,
+                    NOT_FOUND_ERROR_TITLE,
+                    String.format(COUNTRY_NOT_FOUND_MESSAGE, invalidId));
+        }
+
+        @Test
+        @DisplayName("Should return conflict when desired ISO2 code already exists")
+        void updateCountry_Iso2CodeExists_ReturnsConflict() throws Exception {
+            // given
+            updateDto.setIsoCode2(GERMANY_COUNTRY.getIsoCode2()); // Conflict with Germany
+
+            // when & then
+            performAndValidateUpdateException(
+                    referenceCountryId.toString(),
+                    updateDto,
+                    HttpStatus.CONFLICT,
+                    CONFLICT_ERROR_TITLE,
+                    String.format(COUNTRY_ALREADY_EXISTS, updateDto.getIsoCode2().toUpperCase())
+            );
+        }
+
+        @Test
+        @DisplayName("Should return conflict when desired ISO3 code already exists")
+        void updateCountry_Iso3CodeExists_ReturnsConflict() throws Exception {
+            // given
+            updateDto.setIsoCode3(GERMANY_COUNTRY.getIsoCode3()); // Conflict with Germany
+
+            // when & then
+            performAndValidateUpdateException(
+                    referenceCountryId.toString(),
+                    updateDto,
+                    HttpStatus.CONFLICT,
+                    CONFLICT_ERROR_TITLE,
+                    String.format(COUNTRY_ALREADY_EXISTS, updateDto.getIsoCode3().toUpperCase())
+            );
+        }
+
+        @Test
+        @DisplayName("Should return Bad Request when ID is invalid format")
+        void updateCountry_InvalidIdFormat_ReturnBadRequest() throws Exception {
+            // given
+            String invalidId = "not-a-uuid";
+
+            // when & then
+            performAndValidateUpdateException(
+                    invalidId,
+                    updateDto,
+                    HttpStatus.BAD_REQUEST,
+                    VALIDATION_ERROR_TITLE,
+                    INVALID_ID_MESSAGE
+            );
+        }
+
+        @Nested
+        @DisplayName("Validation - should not update airline and return 400 Bad Request")
+        class Validation {
+
+            @FunctionalInterface
+            public interface UpdateMutator extends Consumer<CountryUpdateDto> {}
+
+            private static Stream<Arguments> invalidUpdateDtos() {
+                return Stream.of(
+                        Arguments.of("Name is null", (UpdateMutator) dto -> dto.setName(null), MANDATORY_NAME_MISSING_MESSAGE),
+                        Arguments.of("Name is blank", (UpdateMutator) dto -> dto.setName(""), INVALID_NAME_MESSAGE),
+
+                        // ISO-2 Cases
+                        Arguments.of("ISO-2 is null", (UpdateMutator) dto -> dto.setIsoCode2(null), MANDATORY_ISO2_MISSING_MESSAGE),
+                        Arguments.of("ISO-2 is too short", (UpdateMutator) dto -> dto.setIsoCode2("X"), INVALID_ISO2_MESSAGE),
+                        Arguments.of("ISO-2 is too long", (UpdateMutator) dto -> dto.setIsoCode2("XXX"), INVALID_ISO2_MESSAGE),
+                        Arguments.of("ISO-2 is lowercase (invalid)", (UpdateMutator) dto -> dto.setIsoCode2("xx"), INVALID_ISO2_MESSAGE),
+
+                        // ISO-3 Cases
+                        Arguments.of("ISO-3 is null", (UpdateMutator) dto -> dto.setIsoCode3(null), MANDATORY_ISO3_MISSING_MESSAGE),
+                        Arguments.of("ISO-3 is too short", (UpdateMutator) dto -> dto.setIsoCode3("YY"), INVALID_ISO3_MESSAGE),
+                        Arguments.of("ISO-3 is too long", (UpdateMutator) dto -> dto.setIsoCode3("YYYY"), INVALID_ISO3_MESSAGE),
+                        Arguments.of("ISO-3 is lowercase (invalid)", (UpdateMutator) dto -> dto.setIsoCode3("yyy"), INVALID_ISO3_MESSAGE),
+
+                        // Flag Cases
+                        Arguments.of("Flag is null", (UpdateMutator) dto -> dto.setFlagEmoji(null), MANDATORY_FLAGEMOJI_MISSING_MESSAGE)
+                );
+            }
+
+            @ParameterizedTest(name = "Should return 400 Bad Request when {0}")
+            @MethodSource("invalidUpdateDtos")
+            void updateCountry_InvalidDto_ReturnBadRequest(Object ignored, UpdateMutator mutator, String expectedMessage) throws Exception {
+                // given
+                mutator.accept(updateDto);
+
+                // when & then
+                performAndValidateDtoValidation(updateDto, expectedMessage);
+            }
+
+            @Test
+            @DisplayName("Should return 400 Bad Request when name is missing")
+            void updateCountry_NameMissing_ReturnBadRequest() throws Exception {
+                performAndValidateDtoValidation(
+                        Map.of("isoCode2", "XX", "isoCode3", "YYY", "flagEmoji", "🏁"),
+                        MANDATORY_NAME_MISSING_MESSAGE
+                );
+            }
+
+            @Test
+            @DisplayName("Should return 400 Bad Request when ISO-2 code is missing")
+            void updateCountry_Iso2CodeMissing_ReturnBadRequest() throws Exception {
+                performAndValidateDtoValidation(
+                        Map.of("name", "Valid", "isoCode3", "YYY", "flagEmoji", "🏁"),
+                        MANDATORY_ISO2_MISSING_MESSAGE
+                );
+            }
+
+            @Test
+            @DisplayName("Should return 400 Bad Request when ISO-3 code is missing")
+            void updateCountry_Iso3CodeMissing_ReturnBadRequest() throws Exception {
+                performAndValidateDtoValidation(
+                        Map.of("name", "Valid", "isoCode2", "XX", "flagEmoji", "🏁"),
+                        MANDATORY_ISO3_MISSING_MESSAGE
+                );
+            }
+
+            @Test
+            @DisplayName("Should return 400 Bad Request when flag emoji is missing")
+            void updateCountry_FlagEmojiMissing_ReturnBadRequest() throws Exception {
+                performAndValidateDtoValidation(
+                        Map.of("name", "Valid", "isoCode2", "XX", "isoCode3", "YYY"),
+                        MANDATORY_FLAGEMOJI_MISSING_MESSAGE
+                );
+            }
+
+            private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
+                performAndValidateException(
+                        performPutRequest(BASE_URL + "/{id}", payload, referenceCountryId),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        expectedDetail,
+                        dbCountBefore,
+                        countryRepository::count
+                );
+            }
+        }
+
+        private void performAndValidateUpdateException(
+                String id,
+                Object body,
+                HttpStatus httpStatus,
+                String title, String detail
+        ) throws Exception {
+            performAndValidateException(
+                    performPutRequest(BASE_URL + "/{id}", body, id),
+                    httpStatus,
+                    title,
+                    detail,
+                    dbCountBefore,
+                    countryRepository::count
+            );
+
+            // Fetch fresh from DB to ensure rollback/no-change
+            final Country countryAfterFailedUpdate = countryRepository.findById(referenceCountryId).orElse(null);
+            assertThat(countryAfterFailedUpdate).isNotNull();
+
+            // Verifies the country entity has not changed using recursive comparison
+            assertThat(countryAfterFailedUpdate)
+                    .usingRecursiveComparison()
+                    .isEqualTo(referenceCountryBeforeUpdate);
         }
     }
 

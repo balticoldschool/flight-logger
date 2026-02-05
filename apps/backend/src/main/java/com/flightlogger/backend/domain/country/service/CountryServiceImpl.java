@@ -8,6 +8,7 @@ import com.flightlogger.backend.domain.country.exception.CountryConflictExceptio
 import com.flightlogger.backend.domain.country.exception.CountryNotFoundException;
 import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
+import com.flightlogger.backend.model.CountryUpdateDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public class CountryServiceImpl implements CountryService {
             countryRepository.deleteById(id);
             countryRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new CountryConflictException(id);
+            throw new CountryConflictException();
         }
     }
 
@@ -74,5 +75,26 @@ public class CountryServiceImpl implements CountryService {
         Country savedCountry = countryRepository.save(countryMapper.toEntity(dto));
 
         return countryMapper.toDto(savedCountry);
+    }
+
+    @Override
+    @Transactional
+    public CountryReadDto updateCountryById(UUID id, CountryUpdateDto dto) {
+        String iso2Code = StringUtils.upperCase(dto.getIsoCode2());
+        String iso3Code = StringUtils.upperCase(dto.getIsoCode3());
+
+        Country country = countryRepository.findById(id).orElseThrow(() -> new CountryNotFoundException(id));
+
+        if (!iso2Code.equals(country.getIsoCode2()) && countryRepository.existsByIsoCode2(iso2Code)) {
+            throw new CountryAlreadyExistsException(iso2Code);
+        }
+
+        if (!iso3Code.equals(country.getIsoCode3()) && countryRepository.existsByIsoCode3(iso3Code)) {
+            throw new CountryAlreadyExistsException(iso3Code);
+        }
+
+        countryMapper.updateFromDto(dto, country);
+
+        return countryMapper.toDto(country);
     }
 }
