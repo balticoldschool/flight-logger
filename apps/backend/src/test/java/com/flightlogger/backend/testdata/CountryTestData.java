@@ -15,6 +15,14 @@ public class CountryTestData {
             "🇨🇦"
     );
 
+    public static final Country GERMANY_COUNTRY = new Country(
+            UUID.fromString("12fab36a-5cec-4435-afcb-757befeb7658"),
+            "Federal Republic of Germany",
+            "DE",
+            "DEU",
+            "🇩🇪"
+    );
+
     public static final CountryReadDto CANADA_READ_DTO = new CountryReadDto()
             .id(CANADA_COUNTRY.getId())
             .name(CANADA_COUNTRY.getName())

@@ -54,7 +54,7 @@ public class CountryServiceImpl implements CountryService {
             countryRepository.deleteById(id);
             countryRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new CountryConflictException(id);
+            throw new CountryConflictException();
         }
     }
 

@@ -1,18 +1,29 @@
 package com.flightlogger.backend.domain.airline.entity;
 
+import com.flightlogger.backend.common.utils.StringFormatter;
 import com.flightlogger.backend.model.AirlineCreateDto;
 import com.flightlogger.backend.model.AirlineReadDto;
 import com.flightlogger.backend.model.AirlineUpdateDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.flightlogger.backend.testdata.AirlineTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
+@ExtendWith(MockitoExtension.class)
 class AirlineMapperTest {
 
-    private AirlineMapper mapper = new AirlineMapperImpl();
+    @Spy
+    @SuppressWarnings("unused") // but required for Mockito to work
+    private StringFormatter stringFormatter;
+
+    @InjectMocks
+    private AirlineMapperImpl mapper;
 
     @Test
     @DisplayName("Should map Airline entity to AirlineReadDto")

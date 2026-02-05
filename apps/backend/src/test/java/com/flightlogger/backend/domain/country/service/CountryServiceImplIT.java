@@ -1,27 +1,30 @@
 package com.flightlogger.backend.domain.country.service;
 
 import com.flightlogger.backend.annotations.IntegrationTest;
+import com.flightlogger.backend.domain.country.entity.Country;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
 import com.flightlogger.backend.domain.country.exception.CountryAlreadyExistsException;
 import com.flightlogger.backend.domain.country.exception.CountryNotFoundException;
 import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import com.flightlogger.backend.model.CountryUpdateDto;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
 import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
+import static com.flightlogger.backend.testdata.CountryTestData.GERMANY_COUNTRY;
 import static com.flightlogger.backend.testdata.ErrorMessages.COUNTRY_ALREADY_EXISTS;
+import static com.flightlogger.backend.testdata.ErrorMessages.COUNTRY_NOT_FOUND_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @IntegrationTest
 class CountryServiceImplIT {
+
+    final static UUID NON_EXISTING_ID = new UUID(0L, 0L);
 
     @Autowired
     private CountryService countryService;
@@ -138,13 +141,10 @@ class CountryServiceImplIT {
         @Test
         @DisplayName("Should throw an exception that no country was found")
         void deleteCountryById_CountryDoesNotExist_ThrowCountryNotFoundException() {
-            // given
-            UUID nonExistingId = new UUID(0L, 0L);
-
             // when & then
-            assertThatThrownBy(() -> countryService.deleteCountryById(nonExistingId))
+            assertThatThrownBy(() -> countryService.deleteCountryById(NON_EXISTING_ID))
                     .isInstanceOf(CountryNotFoundException.class)
-                    .hasMessage("Country with id " + nonExistingId + " does not exist");
+                    .hasMessage("Country with id " + NON_EXISTING_ID + " does not exist");
             assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
         }
     }
@@ -203,6 +203,95 @@ class CountryServiceImplIT {
             assertThatThrownBy(() -> countryService.saveCountry(createDto))
                     .isInstanceOf(CountryAlreadyExistsException.class)
                     .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, createDto.getIsoCode3()));
+        }
+    }
+
+    @Nested
+    @DisplayName("UpdateCountry")
+    class UpdateCountry {
+        CountryUpdateDto updateDto;
+
+        @BeforeEach
+        void setUp() {
+            updateDto = new CountryUpdateDto();
+            updateDto.isoCode2("XX");
+            updateDto.isoCode3("YYY");
+            updateDto.name("Updated Country");
+            updateDto.flagEmoji("😜");
+        }
+
+        @AfterEach
+        void tearDown() {
+            assertThat(countryRepository.count()).isEqualTo(dbCountBefore);
+        }
+
+        @Test
+        @DisplayName("Should update country successfuly")
+        void updateCountry_Success() {
+            // given
+            final UUID countryId = CANADA_COUNTRY.getId();
+
+            Country beforeUpdate = countryRepository.findById(countryId).orElse(null);
+            assertThat(beforeUpdate).isNotNull();
+
+            // when
+            CountryReadDto result = countryService.updateCountryById(countryId, updateDto);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(beforeUpdate.getId());
+            assertThat(result.getName()).isEqualTo(updateDto.getName());
+            assertThat(result.getFlagEmoji()).isEqualTo(updateDto.getFlagEmoji());
+            assertThat(result.getIsoCode2()).isEqualTo(updateDto.getIsoCode2().toUpperCase());
+            assertThat(result.getIsoCode3()).isEqualTo(updateDto.getIsoCode3().toUpperCase());
+        }
+
+        @Test
+        @DisplayName("Should not throw conflict error when ISO2 and ISO3 code are unchanged")
+        void updateCountry_unchangedIsoCodes_Success() {
+            // given
+            updateDto.isoCode2(CANADA_COUNTRY.getIsoCode2().toLowerCase());
+            updateDto.isoCode3(CANADA_COUNTRY.getIsoCode3().toLowerCase());
+
+            // when
+            CountryReadDto result = countryService.updateCountryById(CANADA_COUNTRY.getId(), updateDto);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getName()).isEqualTo(updateDto.getName());
+            assertThat(result.getFlagEmoji()).isEqualTo(updateDto.getFlagEmoji());
+        }
+
+        @Test
+        @DisplayName("Should throw CountryNotFoundException when country id does not exist")
+        void updateCountry_CountryIdDoesNotExist_ThrowCountryNotFoundException() {
+            assertThatThrownBy(() -> countryService.updateCountryById(NON_EXISTING_ID, updateDto))
+                    .isInstanceOf(CountryNotFoundException.class)
+                    .hasMessage(String.format(COUNTRY_NOT_FOUND_MESSAGE, NON_EXISTING_ID));
+        }
+
+        @Test
+        @DisplayName("Should throw CountryAlreadyExists when ISO2 code already exists")
+        void updateCountry_Iso2CodeExists_ThrowsCountryAlreadyExistsException() {
+            // given
+            updateDto.isoCode2(GERMANY_COUNTRY.getIsoCode2());
+
+            // when & then
+            assertThatThrownBy(() -> countryService.updateCountryById(CANADA_COUNTRY.getId(), updateDto))
+                    .isInstanceOf(CountryAlreadyExistsException.class)
+                    .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, updateDto.getIsoCode2()));
+        }
+
+        @Test
+        @DisplayName("Should throw CountryAlreadyExists when ISO3 code already exists")
+        void updateCountry_Iso3CodeExists_ThrowsCountryAlreadyExistsException() {
+            // given
+            updateDto.isoCode3(GERMANY_COUNTRY.getIsoCode3());
+
+            // when & then
+            assertThatThrownBy(() -> countryService.updateCountryById(CANADA_COUNTRY.getId(), updateDto))
+                    .isInstanceOf(CountryAlreadyExistsException.class)
+                    .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, updateDto.getIsoCode3()));
         }
     }
 }
