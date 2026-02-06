@@ -1,0 +1,8 @@
+---
+
+type: string
+description: ICAO code of the airport
+example: "EDDF"
+minLength: 4
+maxLength: 4
+pattern: "^[a-zA-Z]{4}$"

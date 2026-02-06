@@ -1,0 +1,7 @@
+---
+
+type: string
+description: Name or title of the attribute
+example: "Just a random name"
+maxLength: 127
+minLength: 1

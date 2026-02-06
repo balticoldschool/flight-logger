@@ -1,0 +1,8 @@
+---
+
+type: string
+description: IATA code of the airport
+example: "FRA"
+minLength: 3
+maxLength: 3
+pattern: "^[a-zA-Z]{3}$"

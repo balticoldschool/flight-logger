@@ -18,3 +18,5 @@ paths:
     $ref: './paths/countries/countries.yaml'
   /countries/{id}:
     $ref: './paths/countries/countriesById.yaml'
+  /airports:
+    $ref: './paths/airports/airports.yaml'
