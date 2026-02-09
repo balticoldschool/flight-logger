@@ -1,6 +1,7 @@
 package com.flightlogger.backend.domain.airline.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.flightlogger.backend.api.AirlinesApi;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.airline.entity.Airline;
 import com.flightlogger.backend.domain.airline.entity.AirlineRepository;
@@ -34,13 +35,13 @@ class AirlineControllerIT extends BaseControllerIT {
     @Autowired
     private AirlineRepository airlineRepository;
 
-    final String BASE_URL = "/airlines";
-
-    long dbCountBefore;
+    private Long dbCountBefore;
 
     @BeforeEach
     void setUp() {
-        dbCountBefore = airlineRepository.count();
+        if (dbCountBefore == null) {
+            dbCountBefore = airlineRepository.count();
+        }
     }
 
     @Nested
@@ -55,7 +56,7 @@ class AirlineControllerIT extends BaseControllerIT {
             assertThat(count).isGreaterThan(0);
 
             // when
-            MockHttpServletResponse response = performGetRequest(BASE_URL);
+            MockHttpServletResponse response = performGetRequest(AirlinesApi.PATH_GET_ALL_AIRLINES);
             List<AirlineReadDto> airlines = readResponseBody(response, new TypeReference<>() {
             });
 
@@ -77,7 +78,7 @@ class AirlineControllerIT extends BaseControllerIT {
             String icaoCode = DLH_READ_DTO.getIcao();
 
             // when
-            MockHttpServletResponse response = performGetRequest(BASE_URL + "/{icao}", icaoCode.toLowerCase());
+            MockHttpServletResponse response = performGetRequest(AirlinesApi.PATH_GET_AIRLINE_BY_ICAO, icaoCode.toLowerCase());
             AirlineReadDto airline = readResponseBody(response, AirlineReadDto.class);
 
             // then
@@ -93,7 +94,7 @@ class AirlineControllerIT extends BaseControllerIT {
 
             // when
             performAndValidateException(
-                    performGetRequest(BASE_URL + "/{icao}", invalidIcaoCode),
+                    performGetRequest(AirlinesApi.PATH_GET_AIRLINE_BY_ICAO, invalidIcaoCode),
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
                     String.format(AIRLINE_NOT_FOUND, invalidIcaoCode.toUpperCase()),
@@ -107,7 +108,7 @@ class AirlineControllerIT extends BaseControllerIT {
         void getAirlineByIcao_InvalidIcaoCode_ReturnBadRequest() throws Exception {
             // when
             performAndValidateException(
-                    performGetRequest(BASE_URL + "/{icao}", "1abc"),
+                    performGetRequest(AirlinesApi.PATH_GET_AIRLINE_BY_ICAO, "1abc"),
                     HttpStatus.BAD_REQUEST,
                     BAD_REQUEST_ERROR_TITLE,
                     INVALID_ICAO_CODE_MESSAGE,
@@ -136,7 +137,7 @@ class AirlineControllerIT extends BaseControllerIT {
             assertThat(airlineRepository.existsById(icaoCode)).isTrue();
 
             // when
-            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", icaoCode.toLowerCase());
+            MockHttpServletResponse response = performDeleteRequest(AirlinesApi.PATH_DELETE_AIRLINE_BY_ICAO, icaoCode.toLowerCase());
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
@@ -152,7 +153,7 @@ class AirlineControllerIT extends BaseControllerIT {
             assertThat(airlineRepository.existsById(icaoCode)).isFalse();
 
             // when
-            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", icaoCode);
+            MockHttpServletResponse response = performDeleteRequest(AirlinesApi.PATH_DELETE_AIRLINE_BY_ICAO, icaoCode);
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
@@ -163,7 +164,7 @@ class AirlineControllerIT extends BaseControllerIT {
         @DisplayName("Should throw 400 Bad Request when icao is invalid")
         void deleteAirline_InvalidIcao_ThrowBadRequest() throws Exception {
             // when
-            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{icao}", "a");
+            MockHttpServletResponse response = performDeleteRequest(AirlinesApi.PATH_DELETE_AIRLINE_BY_ICAO, "a");
             ProblemDetail problemDetail = readResponseBody(response, ProblemDetail.class);
 
             // then
@@ -191,7 +192,7 @@ class AirlineControllerIT extends BaseControllerIT {
             newAirline.setImageLink("https://foo.bar/image.png");
 
             // when
-            MockHttpServletResponse response = performPostRequest(BASE_URL, newAirline);
+            MockHttpServletResponse response = performPostRequest(AirlinesApi.PATH_CREATE_AIRLINE, newAirline);
             AirlineReadDto createAirline = readResponseBody(response, AirlineReadDto.class);
             long dbCountAfter = airlineRepository.count();
 
@@ -210,7 +211,7 @@ class AirlineControllerIT extends BaseControllerIT {
         @DisplayName("Should create new airline without image link and return 201")
         void createAirline_NoImageLink_Success() throws Exception {
             // when
-            MockHttpServletResponse response = performPostRequest(BASE_URL, newAirline);
+            MockHttpServletResponse response = performPostRequest(AirlinesApi.PATH_CREATE_AIRLINE, newAirline);
             AirlineReadDto createAirline = readResponseBody(response, AirlineReadDto.class);
             long dbCountAfter = airlineRepository.count();
 
@@ -286,7 +287,7 @@ class AirlineControllerIT extends BaseControllerIT {
 
             private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
                 performAndValidateException(
-                        performPostRequest(BASE_URL, payload),
+                        performPostRequest(AirlinesApi.PATH_CREATE_AIRLINE, payload),
                         HttpStatus.BAD_REQUEST,
                         VALIDATION_ERROR_TITLE,
                         expectedDetail,
@@ -327,7 +328,7 @@ class AirlineControllerIT extends BaseControllerIT {
 
             private void performAndValidateConflict(Object payload, String expectedDetail) throws Exception {
                 performAndValidateException(
-                        performPostRequest(BASE_URL, payload),
+                        performPostRequest(AirlinesApi.PATH_CREATE_AIRLINE, payload),
                         HttpStatus.CONFLICT,
                         CONFLICT_ERROR_TITLE,
                         expectedDetail,
@@ -360,7 +361,7 @@ class AirlineControllerIT extends BaseControllerIT {
 
             // when
             MockHttpServletResponse response =
-                    performPutRequest(BASE_URL + "/{icao}", updateDto, "DLH");
+                    performPutRequest(AirlinesApi.PATH_UPDATE_AIRLINE_BY_ICAO, updateDto, "DLH");
             AirlineReadDto responseBody = readResponseBody(response, AirlineReadDto.class);
             Airline airlineAfterUpdate = airlineRepository.findById(referenceAirlineIcao).orElse(null);
 
@@ -507,7 +508,7 @@ class AirlineControllerIT extends BaseControllerIT {
                 String title, String detail
         ) throws Exception {
             performAndValidateException(
-                    performPutRequest(BASE_URL + "/{icao}", body, icaoCode),
+                    performPutRequest(AirlinesApi.PATH_UPDATE_AIRLINE_BY_ICAO, body, icaoCode),
                     httpStatus,
                     title,
                     detail,
