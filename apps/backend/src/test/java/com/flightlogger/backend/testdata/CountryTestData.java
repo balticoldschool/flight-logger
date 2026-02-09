@@ -29,4 +29,11 @@ public class CountryTestData {
             .isoCode2(CANADA_COUNTRY.getIsoCode2())
             .isoCode3(CANADA_COUNTRY.getIsoCode3())
             .flagEmoji(CANADA_COUNTRY.getFlagEmoji());
+
+    public static final CountryReadDto GERMANY_READ_DTO = new CountryReadDto()
+            .id(GERMANY_COUNTRY.getId())
+            .name(GERMANY_COUNTRY.getName())
+            .isoCode2(GERMANY_COUNTRY.getIsoCode2())
+            .isoCode3(GERMANY_COUNTRY.getIsoCode3())
+            .flagEmoji(GERMANY_COUNTRY.getFlagEmoji());
 }
