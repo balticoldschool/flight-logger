@@ -1,0 +1,19 @@
+---
+
+type: object
+properties:
+  icao:
+    $ref: './common/airport-icao.yaml'
+  iata:
+    $ref: './common/airport-iata.yaml'
+  name:
+    $ref: '../common/name.yaml'
+  city:
+    $ref: '../common/name.yaml'
+  country:
+    $ref: '../country/country-read-dto.yaml'
+  timezone:
+    type: string
+    description: The IANA timezone identifier of the airport
+    example: "Europe/Berlin"
+    maxLength: 127

@@ -1,0 +1,16 @@
+---
+
+get:
+  tags:
+    - Airports
+  summary: Get a List of all airports
+  operationId: getAllAirports
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/airport/airport-read-dto.yaml'
