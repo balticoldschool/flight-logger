@@ -1,5 +1,6 @@
 package com.flightlogger.backend.domain.country.controller;
 
+import com.flightlogger.backend.api.CountriesApi;
 import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.country.entity.Country;
 import com.flightlogger.backend.domain.country.entity.CountryMapper;
@@ -34,8 +35,7 @@ class CountryControllerTest extends BaseControllerIT {
 
     final static int DEFAULT_PAGE_SIZE = 15;
     final static int DEFAULT_PAGE_NUMBER = 0;
-    final static  String BASE_URL = "/countries";
-    final static String BASE_URL_WITH_PAGINATION_PARAMS = BASE_URL + "?page={p}&pageSize={s}";
+    final static String BASE_URL_WITH_PAGINATION_PARAMS = CountriesApi.PATH_GET_ALL_COUNTRIES + "?page={p}&pageSize={s}";
 
     @Autowired
     private CountryRepository countryRepository;
@@ -58,7 +58,7 @@ class CountryControllerTest extends BaseControllerIT {
         @DisplayName("Should return a paginated list of countries with default size and page")
         void getAllCountries_NoParameters_Success() throws Exception {
             // when
-            MockHttpServletResponse response = performGetRequest(BASE_URL);
+            MockHttpServletResponse response = performGetRequest(CountriesApi.PATH_GET_ALL_COUNTRIES);
             PagedCountryReadResponse responseData = readResponseBody(response, PagedCountryReadResponse.class);
 
             // then
@@ -113,7 +113,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             // when
             MockHttpServletResponse response =
-                    performGetRequest(BASE_URL + "?page={p}&pageSize={s}", lastPageIndex, pageSize);
+                    performGetRequest(BASE_URL_WITH_PAGINATION_PARAMS, lastPageIndex, pageSize);
             PagedCountryReadResponse responseData = readResponseBody(response, PagedCountryReadResponse.class);
 
             // then
@@ -148,7 +148,7 @@ class CountryControllerTest extends BaseControllerIT {
                         .toList();
 
                 // when
-                MockHttpServletResponse response = performGetRequest(BASE_URL + "?search={s}", search);
+                MockHttpServletResponse response = performGetRequest(CountriesApi.PATH_GET_ALL_COUNTRIES + "?search={s}", search);
                 PagedCountryReadResponse responseContent = readResponseBody(response, PagedCountryReadResponse.class);
 
                 // then
@@ -245,7 +245,7 @@ class CountryControllerTest extends BaseControllerIT {
             assertThat(countryRepository.existsById(CANADA_COUNTRY.getId())).isTrue();
 
             // when
-            MockHttpServletResponse response = performDeleteRequest(BASE_URL + "/{id}", CANADA_COUNTRY.getId());
+            MockHttpServletResponse response = performDeleteRequest(CountriesApi.PATH_DELETE_COUNTRY_BY_ID, CANADA_COUNTRY.getId());
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
@@ -262,7 +262,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             // when & then
             performAndValidateException(
-                    performDeleteRequest(BASE_URL + "/{id}", nonExistingId),
+                    performDeleteRequest(CountriesApi.PATH_DELETE_COUNTRY_BY_ID, nonExistingId),
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
                     String.format(COUNTRY_NOT_FOUND_MESSAGE, nonExistingId),
@@ -288,7 +288,7 @@ class CountryControllerTest extends BaseControllerIT {
             void deleteCountryById_InvalidId_ReturnBadRequest(Object ignored, String id) throws Exception {
                 // when & then
                 performAndValidateException(
-                        performDeleteRequest(BASE_URL + "/{id}", id),
+                        performDeleteRequest(CountriesApi.PATH_DELETE_COUNTRY_BY_ID, id),
                         HttpStatus.BAD_REQUEST,
                         VALIDATION_ERROR_TITLE,
                         INVALID_ID_MESSAGE,
@@ -315,7 +315,7 @@ class CountryControllerTest extends BaseControllerIT {
         @DisplayName("Should create new country and return 201")
         void createCountry_Success() throws Exception {
             // when
-            MockHttpServletResponse response = performPostRequest(BASE_URL, createDto);
+            MockHttpServletResponse response = performPostRequest(CountriesApi.PATH_CREATE_COUNTRY, createDto);
             CountryReadDto createdCountry = readResponseBody(response, CountryReadDto.class);
             long dbCountAfter = countryRepository.count();
 
@@ -422,7 +422,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
                 performAndValidateException(
-                        performPostRequest(BASE_URL, payload),
+                        performPostRequest(CountriesApi.PATH_CREATE_COUNTRY, payload),
                         HttpStatus.BAD_REQUEST,
                         VALIDATION_ERROR_TITLE,
                         expectedDetail,
@@ -462,7 +462,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             private void performAndValidateConflict(Object payload, String expectedDetail) throws Exception {
                 performAndValidateException(
-                        performPostRequest(BASE_URL, payload),
+                        performPostRequest(CountriesApi.PATH_CREATE_COUNTRY, payload),
                         HttpStatus.CONFLICT,
                         CONFLICT_ERROR_TITLE,
                         expectedDetail,
@@ -498,7 +498,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             // when
             MockHttpServletResponse response =
-                    performPutRequest(BASE_URL + "/{id}", updateDto, referenceCountryId.toString());
+                    performPutRequest(CountriesApi.PATH_UPDATE_COUNTRY_BY_ID, updateDto, referenceCountryId.toString());
             CountryReadDto responseBody = readResponseBody(response, CountryReadDto.class);
             Country countryAfterUpdate = countryRepository.findById(referenceCountryId).orElse(null);
 
@@ -659,7 +659,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             private void performAndValidateDtoValidation(Object payload, String expectedDetail) throws Exception {
                 performAndValidateException(
-                        performPutRequest(BASE_URL + "/{id}", payload, referenceCountryId),
+                        performPutRequest(CountriesApi.PATH_UPDATE_COUNTRY_BY_ID, payload, referenceCountryId),
                         HttpStatus.BAD_REQUEST,
                         VALIDATION_ERROR_TITLE,
                         expectedDetail,
@@ -676,7 +676,7 @@ class CountryControllerTest extends BaseControllerIT {
                 String title, String detail
         ) throws Exception {
             performAndValidateException(
-                    performPutRequest(BASE_URL + "/{id}", body, id),
+                    performPutRequest(CountriesApi.PATH_UPDATE_COUNTRY_BY_ID, body, id),
                     httpStatus,
                     title,
                     detail,
