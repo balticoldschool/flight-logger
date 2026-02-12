@@ -1,6 +1,10 @@
 val jacocoExclusions = listOf(
     "com/flightlogger/backend/config/MessageConfig.class",
     "com/flightlogger/backend/BackendApplication.class",
+
+    // mapstruct mapper
+    "com/flightlogger/backend/domain/**/entity/*MapperImpl.class",
+
     // generated classes
     "com/flightlogger/backend/api/**",
     "com/flightlogger/backend/model/**"
@@ -128,7 +132,7 @@ tasks.withType<JavaCompile> {
 openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$rootDir/src/main/resources/api/openapi.yaml")
-    outputDir.set("$buildDir/generated/api")
+    outputDir.set(layout.buildDirectory.dir("generated/api").map { it.asFile.absolutePath }) // "$buildDir/generated/api"
     apiPackage.set("com.flightlogger.backend.api")
     modelPackage.set("com.flightlogger.backend.model")
 
@@ -155,7 +159,7 @@ openApiValidate {
 sourceSets {
     main {
         java {
-            srcDir("$buildDir/generated/api/src/main/java")
+            srcDir(layout.buildDirectory.dir("generated/api/src/main/java"))
         }
     }
 }
