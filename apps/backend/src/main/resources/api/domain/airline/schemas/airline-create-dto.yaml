@@ -5,14 +5,13 @@ required:
   - icao
   - iata
   - name
-  - imageLink
 properties:
   icao:
     $ref: './common/airline-icao.yaml'
   iata:
     $ref: './common/airline-iata.yaml'
   name:
-    $ref: '../common/name.yaml'
+    $ref: '../../../common/schemas/name.yaml'
   imageLink:
     type: string
     description: Link to the airline's logo

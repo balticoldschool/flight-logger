@@ -1,7 +1,7 @@
 ---
 
 parameters:
-  - $ref: '../common/params/id.yaml'
+  - $ref: '../../../common/params/uuid.yaml'
 
 put:
   tags:
@@ -13,32 +13,32 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/country/country-update-dto.yaml'
+          $ref: '../schemas/country-update-dto.yaml'
   responses:
     200:
       description: Country updated
       content:
         application/json:
           schema:
-            $ref: '../../schemas/country/country-read-dto.yaml'
+            $ref: '../schemas/country-read-dto.yaml'
     400:
       description: Invalid input data
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     404:
       description: Country not found
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     409:
       description: Iso Code already exists
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
 
 delete:
   tags:
@@ -53,16 +53,16 @@ delete:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     404:
       description: Country not found
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     409:
       description: Country is still in use
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'

@@ -5,4 +5,4 @@ in: path
 required: true
 description: UUID of the resource
 schema:
-  $ref: '../../../schemas/common/uuid.yaml'
+  $ref: '../schemas/uuid.yaml'

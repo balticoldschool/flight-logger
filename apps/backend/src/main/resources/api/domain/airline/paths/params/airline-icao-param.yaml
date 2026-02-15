@@ -1,0 +1,7 @@
+---
+
+in: path
+required: true
+description: ICAO code of the airline
+schema:
+  $ref: '../../schemas/common/airline-icao.yaml'

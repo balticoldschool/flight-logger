@@ -3,7 +3,7 @@
 type: object
 properties:
   id:
-    $ref: '../common/uuid.yaml'
+    $ref: '../../../common/schemas/uuid.yaml'
 
   name:
     $ref: './common/country-name.yaml'
