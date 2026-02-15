@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface AirportService {
     List<AirportReadDto> getAllAirports();
+
+    AirportReadDto getAirportByIcao(String airportIcao);
 }
