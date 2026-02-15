@@ -1,7 +1,7 @@
 ---
 
 parameters:
-  - $ref: '../airlines/params/airline-icao-param.yaml'
+  - $ref: '../paths/params/airline-icao-param.yaml'
 
 get:
   tags:
@@ -14,19 +14,19 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../schemas/airline/airline-read-dto.yaml'
+            $ref: '../schemas/airline-read-dto.yaml'
     400:
       description: Invalid ICAO code
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     404:
       description: Airline not found
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
 
 delete:
   tags:
@@ -48,29 +48,29 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../../schemas/airline/airline-update-dto.yaml'
+          $ref: '../schemas/airline-update-dto.yaml'
   responses:
     200:
       description: Airline updated
       content:
         application/json:
           schema:
-            $ref: '../../schemas/airline/airline-read-dto.yaml'
+            $ref: '../schemas/airline-read-dto.yaml'
     400:
       description: Invalid ICAO code
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     404:
       description: Airline not found
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'
     409:
       description: Airline with IATA code already exists
       content:
         application/json:
           schema:
-            $ref: '../../schemas/common/problem-details.yaml'
+            $ref: '../../../common/schemas/problem-details.yaml'

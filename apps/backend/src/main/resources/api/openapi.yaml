@@ -11,12 +11,12 @@ servers:
 
 paths:
   /airlines:
-    $ref: './paths/airlines/airlines.yaml'
+    $ref: './domain/airline/paths/airlines.yaml'
   /airlines/{airlineIcao}:
-    $ref: './paths/airlines/airlinesByIcao.yaml'
+    $ref: './domain/airline/paths/airlinesByIcao.yaml'
   /countries:
-    $ref: './paths/countries/countries.yaml'
+    $ref: './domain/country/paths/countries.yaml'
   /countries/{id}:
-    $ref: './paths/countries/countriesById.yaml'
+    $ref: './domain/country/paths/countriesById.yaml'
   /airports:
-    $ref: './paths/airports/airports.yaml'
+    $ref: './domain/airport/paths/airports.yaml'

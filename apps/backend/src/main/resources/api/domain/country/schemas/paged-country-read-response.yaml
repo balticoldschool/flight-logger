@@ -12,4 +12,4 @@ properties:
     items:
       $ref: "./country-read-dto.yaml"
   metadata:
-    $ref: "../common/pagination-metadata.yaml"
+    $ref: "../../../common/schemas/pagination-metadata.yaml"

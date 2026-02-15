@@ -8,11 +8,7 @@ properties:
   iata:
     $ref: './common/airline-iata.yaml'
   name:
-    type: string
-    description: Name of the airline
-    example: "Deutsche Lufthansa"
-    maxLength: 127
-    minLength: 1
+    $ref: '../../../common/schemas/name.yaml'
   imageLink:
     type: string
     description: Link to the airline's logo
