@@ -1,5 +1,6 @@
 ---
 
+name: airlineIcao
 in: path
 required: true
 description: ICAO code of the airline
