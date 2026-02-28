@@ -14,7 +14,8 @@ import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
-import static com.flightlogger.backend.testdata.CountryTestData.*;
+import static com.flightlogger.backend.testdata.CountryTestData.CANADA_COUNTRY;
+import static com.flightlogger.backend.testdata.CountryTestData.GERMANY_COUNTRY;
 import static com.flightlogger.backend.testdata.ErrorMessages.COUNTRY_ALREADY_EXISTS;
 import static com.flightlogger.backend.testdata.ErrorMessages.COUNTRY_NOT_FOUND_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -302,10 +303,10 @@ class CountryServiceImplIT {
         @DisplayName("Should return the desired country")
         void getCountryById_Success() {
             // given
-            final CountryReadDto desiredCountry = GERMANY_READ_DTO;
+            final Country desiredCountry = GERMANY_COUNTRY;
 
             // when
-            CountryReadDto result = countryService.getCountryById(desiredCountry.getId());
+            Country result = countryService.getCountryEntityById(desiredCountry.getId());
 
             // then
             assertThat(result).isEqualTo(desiredCountry);
@@ -318,7 +319,7 @@ class CountryServiceImplIT {
             final UUID invalidId = new UUID(0L, 0L);
 
             // when & then
-            assertThatThrownBy(() -> countryService.getCountryById(invalidId))
+            assertThatThrownBy(() -> countryService.getCountryEntityById(invalidId))
                     .isInstanceOf(CountryNotFoundException.class)
                     .hasMessage(String.format(COUNTRY_NOT_FOUND_MESSAGE, invalidId));
         }

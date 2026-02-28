@@ -100,9 +100,8 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Transactional(readOnly = true)
-    public CountryReadDto getCountryById(UUID id) {
+    public Country getCountryEntityById(UUID id) {
         return countryRepository.findById(id)
-                .map(countryMapper::toDto)
                 .orElseThrow(() -> new CountryNotFoundException(id));
     }
 }

@@ -17,4 +17,10 @@ public class AirportExceptionHandler {
     ProblemDetail handleAirportNotFoundException(AirportNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+
+    @ExceptionHandler(AirportAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ProblemDetail handleAirportAlreadyExistsException(AirportAlreadyExistsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }
