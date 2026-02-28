@@ -20,3 +20,5 @@ paths:
     $ref: './domain/country/paths/countriesById.yaml'
   /airports:
     $ref: './domain/airport/paths/airports.yaml'
+  /airports/{icao}:
+    $ref: './domain/airport/paths/airportByIcao.yaml'

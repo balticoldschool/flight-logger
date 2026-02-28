@@ -1,0 +1,8 @@
+---
+
+name: icao
+in: path
+required: true
+description: ICAO code of the airport
+schema:
+  $ref: '../../schemas/common/airport-icao.yaml'

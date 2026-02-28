@@ -1,0 +1,29 @@
+---
+
+parameters:
+  - $ref: '../paths/params/airport-icao-param.yaml'
+
+get:
+  tags:
+    - Airports
+  summary: Get an airport by its ICAO code
+  operationId: getAirportByIcao
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/airport-read-dto.yaml'
+    400:
+      description: Bad request / invalid ICAO code
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
+    404:
+      description: Airport not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'

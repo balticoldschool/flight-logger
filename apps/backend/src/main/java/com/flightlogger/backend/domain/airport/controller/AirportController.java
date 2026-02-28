@@ -16,6 +16,11 @@ public class AirportController implements AirportsApi {
     private final AirportService airportService;
 
     @Override
+    public ResponseEntity<AirportReadDto> getAirportByIcao(String icao) {
+        return ResponseEntity.ok().body(airportService.getAirportByIcao(icao.toUpperCase()));
+    }
+
+    @Override
     public ResponseEntity<List<AirportReadDto>> getAllAirports() {
         return ResponseEntity.ok().body(airportService.getAllAirports());
     }
