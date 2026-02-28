@@ -15,4 +15,6 @@ public interface CountryService {
     CountryReadDto saveCountry(CountryCreateDto dto);
 
     CountryReadDto updateCountryById(UUID id, CountryUpdateDto dto);
+
+    CountryReadDto getCountryById(UUID id);
 }
