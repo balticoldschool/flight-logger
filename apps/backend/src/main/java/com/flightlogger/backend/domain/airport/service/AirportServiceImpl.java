@@ -1,5 +1,6 @@
 package com.flightlogger.backend.domain.airport.service;
 
+import com.flightlogger.backend.common.exception.InvalidTimeZoneException;
 import com.flightlogger.backend.common.utils.IdentificationCodeTypes;
 import com.flightlogger.backend.domain.airport.entity.Airport;
 import com.flightlogger.backend.domain.airport.entity.AirportMapper;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -53,10 +55,20 @@ public class AirportServiceImpl implements AirportService {
             throw new AirportAlreadyExistsException(IdentificationCodeTypes.IATA, iataCode);
         }
 
+        validateTimeZone(dto.getTimezone());
+
         Airport savedAirport = airportRepository.save(
                 airportMapper.toEntity(dto, countryService.getCountryEntityById(dto.getCountryId()))
         );
 
         return airportMapper.toDto(savedAirport);
+    }
+
+    private void validateTimeZone(String timeZone) {
+        try {
+            ZoneId.of(timeZone);
+        } catch (Exception e) {
+            throw new InvalidTimeZoneException(timeZone);
+        }
     }
 }
