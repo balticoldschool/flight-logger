@@ -20,7 +20,7 @@ public interface AirportMapper {
     @Mapping(target = "iataCode", source = "dto.iata", qualifiedByName = "toUpperCase")
     @Mapping(target = "name", source = "dto.name", qualifiedByName = "toUpperCase")
     @Mapping(target = "city", source = "dto.city", qualifiedByName = "toUpperCase")
-    @Mapping(target = "timezone", source = "dto.timezone", qualifiedByName = "toUpperCase")
+    @Mapping(target = "timezone", source = "dto.timezone")
     @Mapping(target = "country", source = "countryEntity")
     Airport toEntity(AirportCreateDto dto, Country countryEntity);
 }
