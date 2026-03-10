@@ -95,7 +95,7 @@ public class AirportControllerIT extends BaseControllerIT {
                     performGetRequest(AirportsApi.PATH_GET_AIRPORT_BY_ICAO, invalidIcaoCode),
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
-                    String.format(AIRPORT_NOT_FOUND, invalidIcaoCode.toUpperCase()),
+                    String.format(AIRPORT_NOT_FOUND_MESSAGE, invalidIcaoCode.toUpperCase()),
                     dbCountBefore,
                     airportRepository::count
             );

@@ -97,7 +97,7 @@ class AirlineControllerIT extends BaseControllerIT {
                     performGetRequest(AirlinesApi.PATH_GET_AIRLINE_BY_ICAO, invalidIcaoCode),
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
-                    String.format(AIRLINE_NOT_FOUND, invalidIcaoCode.toUpperCase()),
+                    String.format(AIRLINE_NOT_FOUND_MESSAGE, invalidIcaoCode.toUpperCase()),
                     dbCountBefore,
                     airlineRepository::count
                     );
@@ -391,7 +391,7 @@ class AirlineControllerIT extends BaseControllerIT {
                     updateDto,
                     HttpStatus.NOT_FOUND,
                     NOT_FOUND_ERROR_TITLE,
-                    String.format(AIRLINE_NOT_FOUND, invalidIcao.toUpperCase()));
+                    String.format(AIRLINE_NOT_FOUND_MESSAGE, invalidIcao.toUpperCase()));
         }
 
         @Test

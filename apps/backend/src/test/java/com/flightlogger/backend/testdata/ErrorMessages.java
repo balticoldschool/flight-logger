@@ -11,8 +11,9 @@ public class ErrorMessages {
     // Messages
     public static final String AIRLINE_ICAO_ALREADY_EXISTS_MESSAGE = "Airline with ICAO %s already exists";
     public static final String AIRLINE_IATA_ALREADY_EXISTS_MESSAGE = "Airline with IATA %s already exists";
-    public static final String AIRLINE_NOT_FOUND = "Airline with ICAO code %s not found";
-    public static final String AIRPORT_NOT_FOUND = "Airport with ICAO code %s not found";
+    public static final String AIRLINE_NOT_FOUND_MESSAGE = "Airline with ICAO code %s not found";
+    public static final String AIRPORT_ALREADY_EXISTS = "Airport with %s code %s already exists";
+    public static final String AIRPORT_NOT_FOUND_MESSAGE = "Airport with ICAO code %s not found";
     public static final String COUNTRY_ALREADY_EXISTS = "Country with ISO code %s already exists";
     public static final String COUNTRY_CONFLICT_MESSAGE = "Country still used in a foreign key relation";
     public static final String COUNTRY_NOT_FOUND_MESSAGE = "Country with id %s does not exist";
@@ -24,6 +25,7 @@ public class ErrorMessages {
     public final static String INVALID_NAME_MESSAGE = "Invalid Name field";
     public final static String INVALID_PAGE_NUMBER_MESSAGE = "Invalid page number";
     public final static String INVALID_PAGE_SIZE_MESSAGE = "Invalid page size";
+    public final static String INVALID_TIMEZONE_MESSAGE = "Invalid timezone: %s";
 
     public final static String MANDATORY_FIELD_MISSING = "Mandatory field %s is missing";
     public final static String MANDATORY_FLAGEMOJI_MISSING_MESSAGE = String.format(MANDATORY_FIELD_MISSING, "flagEmoji");
