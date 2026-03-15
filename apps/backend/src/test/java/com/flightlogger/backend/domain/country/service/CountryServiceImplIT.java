@@ -309,7 +309,9 @@ class CountryServiceImplIT {
             Country result = countryService.getCountryEntityById(desiredCountry.getId());
 
             // then
-            assertThat(result).isEqualTo(desiredCountry);
+            assertThat(result)
+                    .usingRecursiveComparison()
+                    .isEqualTo(desiredCountry);
         }
 
         @Test

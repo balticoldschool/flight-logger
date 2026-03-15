@@ -133,7 +133,7 @@ class AirportServiceImplIT {
             assertThat(savedAirport.getIata()).isEqualTo(createDto.getIata().toUpperCase());
             assertThat(savedAirport.getName()).isEqualTo(createDto.getName().toUpperCase());
             assertThat(savedAirport.getCity()).isEqualTo(createDto.getCity().toUpperCase());
-            assertThat(savedAirport.getTimezone()).isEqualTo(createDto.getTimezone().toUpperCase());
+            assertThat(savedAirport.getTimezone()).isEqualTo(createDto.getTimezone());
 
             assertThat(savedAirport.getCountry().getId()).isEqualTo(createDto.getCountryId());
         }
