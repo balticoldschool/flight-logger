@@ -271,6 +271,23 @@ class CountryControllerTest extends BaseControllerIT {
             );
         }
 
+        @Test
+        @DisplayName("Should throw 409 conflict when Country is used for airport")
+        void deleteCountryById_CountryIsUsedForAirport_ReturnConflict() throws Exception {
+            // given
+            final UUID countryIdThatIsInUse = GERMANY_COUNTRY.getId();
+
+            // when & then
+            performAndValidateException(
+                    performDeleteRequest(CountriesApi.PATH_DELETE_COUNTRY_BY_ID, countryIdThatIsInUse),
+                    HttpStatus.CONFLICT,
+                    CONFLICT_ERROR_TITLE,
+                    COUNTRY_CONFLICT_MESSAGE,
+                    dbCountBefore,
+                    () -> countryRepository.count()
+            );
+        }
+
         @Nested
         class InvalidCountryId {
 

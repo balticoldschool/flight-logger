@@ -3,6 +3,7 @@ package com.flightlogger.backend.config;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flightlogger.backend.annotations.IntegrationTest;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,9 @@ public abstract class BaseControllerIT {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @Autowired
+    protected EntityManager entityManager;
 
     protected MockHttpServletResponse performGetRequest(String baseUrl, Object... vars) throws Exception {
         return mockMvc.perform(get(baseUrl, vars).contentType(MediaType.APPLICATION_JSON))
@@ -67,6 +71,7 @@ public abstract class BaseControllerIT {
             LongSupplier repositoryCountSupplier
     ) throws Exception {
         // given
+        entityManager.clear(); // Clears the failed delete from Hibernate's queue to prevent a crash during the subsequent count flush
         long dbCountAfter = repositoryCountSupplier.getAsLong();
 
         // when
