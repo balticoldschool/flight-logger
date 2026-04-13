@@ -294,4 +294,36 @@ class CountryServiceImplIT {
                     .hasMessage(String.format(COUNTRY_ALREADY_EXISTS, updateDto.getIsoCode3()));
         }
     }
+
+    @Nested
+    @DisplayName("GetCountryById")
+    class GetCountryById {
+
+        @Test
+        @DisplayName("Should return the desired country")
+        void getCountryById_Success() {
+            // given
+            final Country desiredCountry = GERMANY_COUNTRY;
+
+            // when
+            Country result = countryService.getCountryEntityById(desiredCountry.getId());
+
+            // then
+            assertThat(result)
+                    .usingRecursiveComparison()
+                    .isEqualTo(desiredCountry);
+        }
+
+        @Test
+        @DisplayName("Should return CountryNotFoundException when nothing was found for uuid")
+        void getCountryById_CountryNotFoundException() {
+            // given
+            final UUID invalidId = new UUID(0L, 0L);
+
+            // when & then
+            assertThatThrownBy(() -> countryService.getCountryEntityById(invalidId))
+                    .isInstanceOf(CountryNotFoundException.class)
+                    .hasMessage(String.format(COUNTRY_NOT_FOUND_MESSAGE, invalidId));
+        }
+    }
 }

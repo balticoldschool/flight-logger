@@ -1,5 +1,6 @@
 package com.flightlogger.backend.domain.country.service;
 
+import com.flightlogger.backend.domain.country.entity.Country;
 import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
 import com.flightlogger.backend.model.CountryUpdateDto;
@@ -15,4 +16,6 @@ public interface CountryService {
     CountryReadDto saveCountry(CountryCreateDto dto);
 
     CountryReadDto updateCountryById(UUID id, CountryUpdateDto dto);
+
+    Country getCountryEntityById(UUID id);
 }

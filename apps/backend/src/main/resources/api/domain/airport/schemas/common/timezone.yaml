@@ -1,0 +1,6 @@
+---
+
+type: string
+description: The IANA timezone identifier of the airport
+example: "Europe/Berlin"
+maxLength: 127

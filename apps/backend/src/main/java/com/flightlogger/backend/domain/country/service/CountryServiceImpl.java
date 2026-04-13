@@ -9,7 +9,6 @@ import com.flightlogger.backend.domain.country.exception.CountryNotFoundExceptio
 import com.flightlogger.backend.model.CountryCreateDto;
 import com.flightlogger.backend.model.CountryReadDto;
 import com.flightlogger.backend.model.CountryUpdateDto;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -96,5 +96,12 @@ public class CountryServiceImpl implements CountryService {
         countryMapper.updateFromDto(dto, country);
 
         return countryMapper.toDto(country);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Country getCountryEntityById(UUID id) {
+        return countryRepository.findById(id)
+                .orElseThrow(() -> new CountryNotFoundException(id));
     }
 }

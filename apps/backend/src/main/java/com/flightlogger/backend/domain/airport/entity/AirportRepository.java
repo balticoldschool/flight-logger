@@ -12,4 +12,6 @@ public interface AirportRepository extends JpaRepository<Airport, String> {
     @NonNull
     @EntityGraph(attributePaths = {"country"})
     List<Airport> findAll();
+
+    boolean existsByIataCode(String iataCode);
 }

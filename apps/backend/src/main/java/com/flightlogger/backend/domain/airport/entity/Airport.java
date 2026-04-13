@@ -32,6 +32,6 @@ public class Airport {
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
-    @Column(name = "timezone")
+    @Column(name = "timezone", nullable = false)
     private String timezone;
 }

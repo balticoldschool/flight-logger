@@ -72,6 +72,14 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(InvalidTimeZoneException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ProblemDetail handleInvalidTimeZoneException(InvalidTimeZoneException ex) {
+        ProblemDetail problemDetail =  ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle(VALIDATION_ERROR_TITLE);
+        return problemDetail;
+    }
+
     /**
      * Helper to retrieve the constraint as well as the field name from the violation and looks for an error message
      * key.

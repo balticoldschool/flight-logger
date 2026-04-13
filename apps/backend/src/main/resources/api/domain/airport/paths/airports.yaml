@@ -14,3 +14,41 @@ get:
             type: array
             items:
               $ref: '../schemas/airport-read-dto.yaml'
+
+post:
+  tags:
+    - Airports
+  summary: Create a new airport
+  operationId: createAirport
+  requestBody:
+    required: true
+    description: Airport to create
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/airport-create-dto.yaml'
+  responses:
+    201:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/airport-read-dto.yaml'
+    400:
+      description: Invalid Request
+      content:
+        application/json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
+    404:
+      description: No country for given id found
+      content:
+        application/json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
+    409:
+      description: Airport with ICAO- or IATA code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'

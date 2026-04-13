@@ -6,7 +6,7 @@ required:
   - iata
   - name
   - city
-  - country
+  - countryId
   - timezone
 properties:
   icao:
@@ -17,7 +17,7 @@ properties:
     $ref: '../../../common/schemas/name.yaml'
   city:
     $ref: '../../../common/schemas/name.yaml'
-  country:
-    $ref: '../../../domain/country/schemas/country-read-dto.yaml'
+  countryId:
+    $ref: '../../../common/schemas/uuid.yaml'
   timezone:
     $ref: './common/timezone.yaml'
