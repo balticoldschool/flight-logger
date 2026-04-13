@@ -1,6 +1,7 @@
 package com.flightlogger.backend.domain.airport.exception;
 
 import com.flightlogger.backend.domain.airport.controller.AirportController;
+import com.flightlogger.backend.domain.country.exception.CountryNotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -22,5 +23,11 @@ public class AirportExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     ProblemDetail handleAirportAlreadyExistsException(AirportAlreadyExistsException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(CountryNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ProblemDetail handleCountryNotFoundException(CountryNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 }
