@@ -12,5 +12,5 @@ public interface AirportService {
 
     AirportReadDto saveAirport(AirportCreateDto dto);
 
-    void deleteAirport(String airportIcao);
+    void deleteAirportByIcao(String airportIcao);
 }

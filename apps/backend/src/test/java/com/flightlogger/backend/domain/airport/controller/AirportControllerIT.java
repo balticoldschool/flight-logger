@@ -292,4 +292,74 @@ public class AirportControllerIT extends BaseControllerIT {
             }
         }
     }
+
+    @Nested
+    @DisplayName("deleteAirportByIcao")
+    class DeleteAirportByIcao {
+
+        @Test
+        @DisplayName("Should remove desired airport from database and return 204 no content")
+        void deleteAirportByIcao_Success() throws Exception {
+            // given
+            assertThat(airportRepository.existsById(FRANKFURT_AIRPORT.getIcaoCode())).isTrue();
+
+            // when
+            MockHttpServletResponse response = performDeleteRequest(
+                    AirportsApi.PATH_DELETE_AIRPORT_BY_ICAO, FRANKFURT_AIRPORT.getIcaoCode().toLowerCase()
+            );
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            assertThat(response.getContentAsString()).isEmpty();
+            assertThat(airportRepository.existsById(FRANKFURT_AIRPORT.getIcaoCode())).isFalse();
+            assertThat(airportRepository.count()).isEqualTo(dbCountBefore - 1);
+        }
+
+        @Test
+        @DisplayName("Should return 204 no content when airport ICAO code not exits")
+        void deleteAirportByIcao_AirportCodeDoesNotExits_NoContent() throws Exception {
+            // given
+            final String invalidIcaoCode = "fooo";
+            assertThat(airportRepository.existsById(invalidIcaoCode.toUpperCase())).isFalse();
+
+            // when
+            MockHttpServletResponse response = performDeleteRequest(
+                    AirportsApi.PATH_DELETE_AIRPORT_BY_ICAO, invalidIcaoCode.toLowerCase()
+            );
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            assertThat(response.getContentAsString()).isEmpty();
+            assertThat(airportRepository.count()).isEqualTo(dbCountBefore);
+        }
+
+        @Nested
+        class InvalidPathParameters {
+
+            /// A list of invalid airport IDs
+            private static Stream<Arguments> invalidAirportIds() {
+                return Stream.of(
+                        Arguments.of("ICAO is too long", "foooo"),
+                        Arguments.of("ICAO is too short", "foo"),
+                        Arguments.of("ICAO contains invalid characters", "foo!"),
+                        Arguments.of("ICAO contains numbers", "ED12"),
+                        Arguments.of("ICAO contains spaces", "ED F")
+                );
+            }
+
+            @ParameterizedTest(name = "Should return 400 bad request when {0}")
+            @MethodSource("invalidAirportIds")
+            void deleteAirportByIcao_InvalidIcao_ReturnBadRequest(Object ignored, String icao) throws Exception {
+                // when & then
+                performAndValidateException(
+                        performDeleteRequest(AirportsApi.PATH_DELETE_AIRPORT_BY_ICAO, icao),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        INVALID_ICAO_CODE_MESSAGE,
+                        dbCountBefore,
+                        airportRepository::count
+                );
+            }
+        }
+    }
 }

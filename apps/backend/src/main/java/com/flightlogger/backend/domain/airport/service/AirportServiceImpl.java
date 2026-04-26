@@ -65,7 +65,7 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
-    public void deleteAirport(String airportIcao) {
+    public void deleteAirportByIcao(String airportIcao) {
         airportRepository.deleteById(StringUtils.upperCase(airportIcao));
     }
 
