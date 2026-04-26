@@ -27,3 +27,12 @@ get:
         application/problem+json:
           schema:
             $ref: '../../../common/schemas/problem-details.yaml'
+
+delete:
+  tags:
+    - Airports
+  summary: Delte an airport by its ICAO code
+  operationId: deleteAirportByIcao
+  responses:
+    204:
+      description: Airport deleted

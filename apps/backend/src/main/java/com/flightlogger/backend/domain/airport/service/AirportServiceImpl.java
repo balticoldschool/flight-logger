@@ -64,10 +64,13 @@ public class AirportServiceImpl implements AirportService {
         return airportMapper.toDto(savedAirport);
     }
 
+    @Override
+    public void deleteAirport(String airportIcao) {
+        airportRepository.deleteById(StringUtils.upperCase(airportIcao));
+    }
+
     private void validateTimeZone(String timeZone) {
-        try {
-            ZoneId.of(timeZone);
-        } catch (Exception e) {
+        if (timeZone == null || !ZoneId.getAvailableZoneIds().contains(timeZone)) {
             throw new InvalidTimeZoneException(timeZone);
         }
     }
