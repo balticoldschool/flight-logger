@@ -24,6 +24,7 @@ import static com.flightlogger.backend.testdata.CountryTestData.GERMANY_COUNTRY;
 import static com.flightlogger.backend.testdata.ErrorMessages.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @IntegrationTest
 class AirportServiceImplIT {
@@ -192,6 +193,37 @@ class AirportServiceImplIT {
                     .isInstanceOf(CountryNotFoundException.class)
                     .hasMessage(String.format(COUNTRY_NOT_FOUND_MESSAGE, randomId));
 
+            assertThat(airportRepository.count()).isEqualTo(countBeforeUpdate);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteAirport")
+    class DeleteAirport {
+
+        @Test
+        @DisplayName("Should delete the desired airport from database")
+        void deleteAirportById_Success() {
+            // given
+            assertThat(airportRepository.existsById(FRANKFURT_AIRPORT.getIcaoCode())).isTrue();
+
+            // when
+            airportService.deleteAirportByIcao(FRANKFURT_AIRPORT.getIcaoCode());
+
+            // then
+            assertThat(airportRepository.existsById(FRANKFURT_AIRPORT.getIcaoCode())).isFalse();
+            assertThat(airportRepository.count()).isEqualTo(countBeforeUpdate - 1);
+        }
+
+        @Test
+        @DisplayName("Should not delete anything when icao code does not exists")
+        void deleteAirportById_CountryDoesNotExist_ThrownsNoException() {
+            // given
+            final String invalidIcao = "FOOO";
+            assertThat(airportRepository.existsById(invalidIcao)).isFalse();
+
+            // when & then
+            assertDoesNotThrow(() -> airportService.deleteAirportByIcao(invalidIcao));
             assertThat(airportRepository.count()).isEqualTo(countBeforeUpdate);
         }
     }
