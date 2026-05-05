@@ -4,6 +4,7 @@ import com.flightlogger.backend.api.AirportsApi;
 import com.flightlogger.backend.domain.airport.service.AirportService;
 import com.flightlogger.backend.model.AirportCreateDto;
 import com.flightlogger.backend.model.AirportReadDto;
+import com.flightlogger.backend.model.AirportUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,5 +46,10 @@ public class AirportController implements AirportsApi {
     @Override
     public ResponseEntity<List<AirportReadDto>> getAllAirports() {
         return ResponseEntity.ok().body(airportService.getAllAirports());
+    }
+
+    @Override
+    public ResponseEntity<AirportReadDto> updateAirportByIcao(String icao, AirportUpdateDto airportUpdateDto) {
+        return ResponseEntity.ok().body(airportService.updateAirportByIcao(icao.toUpperCase(), airportUpdateDto));
     }
 }
