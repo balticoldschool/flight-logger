@@ -36,3 +36,41 @@ delete:
   responses:
     204:
       description: Airport deleted
+
+put:
+  tags:
+    - Airports
+  summary: Update an airport by its ICAO code
+  operationId: updateAirportByIcao
+  requestBody:
+    required: true
+    description: Airport to update
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/airport-update-dto.yaml'
+  responses:
+    200:
+      description: Airport updated
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/airport-read-dto.yaml'
+    400:
+      description: Bad request / invalid ICAO code
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
+    404:
+      description: Airport not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
+    409:
+      description: Airport with IATA code already exists
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../../../common/schemas/problem-details.yaml'
