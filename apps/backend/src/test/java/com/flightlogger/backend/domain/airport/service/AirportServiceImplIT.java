@@ -335,5 +335,17 @@ class AirportServiceImplIT {
                     .isInstanceOf(InvalidTimeZoneException.class)
                     .hasMessage(INVALID_TIMEZONE_MESSAGE, invalidTimeZone);
         }
+
+        @Test
+        @DisplayName("Should throw InvalidTimezone when time zone is null")
+        void updateAirport_TimeZoneIsNull_ThrowInvalidTimeZoneException() {
+            // given
+            updateDto.setTimezone(null);
+
+            // when & then
+            assertThatThrownBy(() -> airportService.updateAirportByIcao(FRANKFURT_AIRPORT.getIcaoCode(), updateDto))
+                    .isInstanceOf(InvalidTimeZoneException.class)
+                    .hasMessage(INVALID_TIMEZONE_MESSAGE, "null");
+        }
     }
 }
