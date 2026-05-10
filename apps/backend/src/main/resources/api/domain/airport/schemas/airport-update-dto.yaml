@@ -1,0 +1,20 @@
+---
+
+type: object
+required:
+  - iata
+  - name
+  - city
+  - countryId
+  - timezone
+properties:
+  iata:
+    $ref: './common/airport-iata.yaml'
+  name:
+    $ref: '../../../common/schemas/name.yaml'
+  city:
+    $ref: '../../../common/schemas/name.yaml'
+  countryId:
+    $ref: '../../../common/schemas/uuid.yaml'
+  timezone:
+    $ref: './common/timezone.yaml'

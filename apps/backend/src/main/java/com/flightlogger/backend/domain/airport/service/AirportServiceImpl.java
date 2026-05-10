@@ -10,6 +10,7 @@ import com.flightlogger.backend.domain.airport.exception.AirportNotFoundExceptio
 import com.flightlogger.backend.domain.country.service.CountryService;
 import com.flightlogger.backend.model.AirportCreateDto;
 import com.flightlogger.backend.model.AirportReadDto;
+import com.flightlogger.backend.model.AirportUpdateDto;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,26 @@ public class AirportServiceImpl implements AirportService {
         );
 
         return airportMapper.toDto(savedAirport);
+    }
+
+    @Override
+    @Transactional
+    public AirportReadDto updateAirportByIcao(String icao, AirportUpdateDto dto) {
+        final String icaoCode = StringUtils.upperCase(icao);
+        final String iataCode = StringUtils.upperCase(dto.getIata());
+
+        Airport airport = airportRepository.findById(icaoCode)
+                .orElseThrow(() -> new AirportNotFoundException(icaoCode));
+
+        if (!iataCode.equals(airport.getIataCode()) && airportRepository.existsByIataCode(iataCode)) {
+            throw new AirportAlreadyExistsException(IdentificationCodeTypes.IATA, iataCode);
+        }
+
+        validateTimeZone(dto.getTimezone());
+
+        airportMapper.updateFromDto(dto, countryService.getCountryEntityById(dto.getCountryId()), airport);
+
+        return airportMapper.toDto(airport);
     }
 
     @Override
