@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260611_001
+      author: christopher
+      comment: create flights table
+      changes:
+        - createTable:
+            tableName: flight
+            columns:
+
+              # ID
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_flight
+
+              # Flight Date
+              - column:
+                  name: flight_date
+                  type: datetime
+                  constraints:
+                    nullable: false
+
+              # Origin Airport
+              - column:
+                  name: origin_icao
+                  type: varchar(4)
+                  constraints:
+                    nullable: false
+                    referencedTableName: airport
+                    referencedColumnNames: icao_code
+                    foreignKeyName: fk_flight_origin
+                    onDelete: RESTRICT
+
+              # Destination
+              - column:
+                  name: destination_icao
+                  type: varchar(4)
+                  constraints:
+                    nullable: false
+                    referencedTableName: airport
+                    referencedColumnNames: icao_code
+                    foreignKeyName: fk_flight_destination
+                    onDelete: RESTRICT
+
+              # Airline
+              - column:
+                  name: airline_icao
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+                    referencedTableName: airline
+                    referencedColumnNames: icao_code
+                    foreignKeyName: fk_flight_airline
+                    onDelete: RESTRICT
+
+              # Flight Number
+              - column:
+                  name: flight_number
+                  type: varchar(8)
+                  constraints:
+                    nullable: false
+
+              # Booking Class
+              - column:
+                  name: booking_class
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+
+              # Duration in Minutes
+              - column:
+                  name: duration_minutes
+                  type: integer
+                  constraints:
+                    nullable: false
+
+              # Purpose
+              - column:
+                  name: purpose
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+
+              # Created At
+              - column:
+                  name: created_at
+                  type: datetime
+                  constraints:
+                    nullable: false
+
+              # Updated At
+              - column:
+                  name: updated_at
+                  type: datetime
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropTable:
+            tableName: flights
+            ifExists: true
