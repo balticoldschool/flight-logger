@@ -140,7 +140,7 @@ openApiGenerate {
         "interfaceOnly" to "true",
         "generateModels" to "true",
         "useTags" to "true",
-        "dateLibrary" to "java8",
+        "dateLibrary" to "java8-localdatetime",
         "useSpringBoot3" to "true",
         "openApiNullable" to "false", // necessary to disable use of JsonNullable which causes mapping errors
         "generatedAnnotation" to "true" // necessary to enable @Generated annotation and exclude it from code coverage
