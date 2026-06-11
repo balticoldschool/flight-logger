@@ -1,0 +1,10 @@
+---
+
+type: string
+description: The booking class
+enum:
+  - ECONOMY
+  - PREMIUM
+  - BUSINESS
+  - FIRST
+example: BUSINESS

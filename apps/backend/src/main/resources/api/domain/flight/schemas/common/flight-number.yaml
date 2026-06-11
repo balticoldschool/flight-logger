@@ -1,0 +1,7 @@
+---
+
+type: string
+example: "LH2345"
+nullable: false
+maxLength: 8
+minLength: 3

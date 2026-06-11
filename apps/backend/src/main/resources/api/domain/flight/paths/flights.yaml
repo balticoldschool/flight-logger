@@ -1,0 +1,17 @@
+---
+
+get:
+  tags:
+    - Flights
+  parameters:
+    - $ref: "../../../common/params/pagination-page.yaml"
+    - $ref: "../../../common/params/pagination-size.yaml"
+  summary: Get a paginated list of all flights
+  operationId: getAllFlights
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/paged-flight-read-response.yaml"
