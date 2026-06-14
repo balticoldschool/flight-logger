@@ -3,6 +3,7 @@ package com.flightlogger.backend.config;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flightlogger.backend.annotations.IntegrationTest;
+import com.flightlogger.backend.model.PaginationMetadata;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -82,5 +83,20 @@ public abstract class BaseControllerIT {
         assertThat(dbCountAfter).isEqualTo(dbCountBefore);
         assertThat(problemDetail.getTitle()).isEqualTo(expectedTitle);
         assertThat(problemDetail.getDetail()).isEqualTo(expectedDetail);
+    }
+
+    /**
+     * Verifies pagination metadata against the request parameters and database state.
+     *
+     * @param currentPage Expected zero-based page index.
+     * @param pageSize    Expected number of elements per page.
+     * @param metadata    The pagination details returned by the API.
+     */
+    protected void validatePaginationMetaData(int currentPage, int pageSize, PaginationMetadata metadata, long dbCountBefore) {
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getPageNumber()).isEqualTo(currentPage);
+        assertThat(metadata.getPageSize()).isEqualTo(pageSize);
+        assertThat(metadata.getTotalElements()).isEqualTo(dbCountBefore);
+        assertThat(metadata.getTotalPages()).isEqualTo((int) Math.ceil((double) dbCountBefore / pageSize));
     }
 }
