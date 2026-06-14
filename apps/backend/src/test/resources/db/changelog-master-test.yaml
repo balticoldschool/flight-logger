@@ -5,7 +5,10 @@ databaseChangeLog:
       path: changelogs/
       relativeToChangelogFile: true
 
-  # Add test data
-  - includeAll:
-      path: test/
+  # Add test data except flights data - this is important to not hit foreign key constraints on other domains
+  - include:
+      file: test/airline_test_data.sql
+      relativeToChangelogFile: true
+  - include:
+      file: test/airport_test_data.sql
       relativeToChangelogFile: true

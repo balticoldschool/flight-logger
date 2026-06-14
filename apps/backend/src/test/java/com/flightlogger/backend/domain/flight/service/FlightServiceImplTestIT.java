@@ -9,11 +9,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// Loads the flight data - this is not part of liquibase to avoid FK constraint violations
+@Sql(scripts = "classpath:db/test/flight_test_data.sql")
 @IntegrationTest
 class FlightServiceImplTestIT {
 
