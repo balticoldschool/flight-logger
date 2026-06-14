@@ -1,0 +1,40 @@
+---
+
+type: object
+required:
+  - id
+  - flightDate
+  - origin
+  - destination
+  - airline
+  - flightNumber
+  - bookingClass
+  - durationInMinutes
+  - purpose
+  - createdAt
+  - updatedAt
+properties:
+  id:
+    $ref: "../../../common/schemas/uuid.yaml"
+  flightDate:
+    $ref: "../../../common/schemas/datetime.yaml"
+  origin:
+    $ref: "../../../domain/airport/schemas/airport-read-dto.yaml"
+  destination:
+    $ref: "../../../domain/airport/schemas/airport-read-dto.yaml"
+  airline:
+    $ref: "../../../domain/airline/schemas/airline-read-dto.yaml"
+  flightNumber:
+    $ref: "./common/flight-number.yaml"
+  bookingClass:
+    $ref: "./common/booking-class.yaml"
+  durationInMinutes:
+    type: integer
+    description: Duration of the flight in minutes
+    example: 120
+  purpose:
+    $ref: "./common/travel-purpose.yaml"
+  createdAt:
+    $ref: "../../../common/schemas/datetime.yaml"
+  updatedAt:
+    $ref: "../../../common/schemas/datetime.yaml"

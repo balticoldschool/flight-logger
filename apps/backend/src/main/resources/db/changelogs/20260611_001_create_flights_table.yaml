@@ -100,5 +100,5 @@ databaseChangeLog:
 
       rollback:
         - dropTable:
-            tableName: flights
+            tableName: flight
             ifExists: true

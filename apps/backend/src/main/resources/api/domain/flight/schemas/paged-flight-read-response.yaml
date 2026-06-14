@@ -1,0 +1,15 @@
+---
+
+type: object
+required:
+  - content
+  - metadata
+description: Paged response containing a list of flights
+properties:
+  content:
+    type: array
+    description: List of flights
+    items:
+      $ref: "./flight-read-dto.yaml"
+  metadata:
+    $ref: "../../../common/schemas/pagination-metadata.yaml"

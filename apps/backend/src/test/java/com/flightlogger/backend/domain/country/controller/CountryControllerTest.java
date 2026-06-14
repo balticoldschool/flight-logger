@@ -5,7 +5,10 @@ import com.flightlogger.backend.config.BaseControllerIT;
 import com.flightlogger.backend.domain.country.entity.Country;
 import com.flightlogger.backend.domain.country.entity.CountryMapper;
 import com.flightlogger.backend.domain.country.entity.CountryRepository;
-import com.flightlogger.backend.model.*;
+import com.flightlogger.backend.model.CountryCreateDto;
+import com.flightlogger.backend.model.CountryReadDto;
+import com.flightlogger.backend.model.CountryUpdateDto;
+import com.flightlogger.backend.model.PagedCountryReadResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,11 +46,13 @@ class CountryControllerTest extends BaseControllerIT {
     @Autowired
     private CountryMapper countryMapper;
 
-    long dbCountBefore;
+    private Long dbCountBefore;
 
     @BeforeEach
     void setUp() {
-        dbCountBefore = countryRepository.count();
+        if (dbCountBefore == null) {
+            dbCountBefore = countryRepository.count();
+        }
     }
 
     @Nested
@@ -65,7 +70,7 @@ class CountryControllerTest extends BaseControllerIT {
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 
             validateResponseContent(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, responseData.getContent());
-            validatePaginationMetaData(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, responseData.getMetadata());
+            validatePaginationMetaData(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, responseData.getMetadata(), dbCountBefore);
         }
 
         @Test
@@ -83,7 +88,7 @@ class CountryControllerTest extends BaseControllerIT {
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
             validateResponseContent(currentPage, expectedPageSize, responseData.getContent());
-            validatePaginationMetaData(currentPage, expectedPageSize, responseData.getMetadata());
+            validatePaginationMetaData(currentPage, expectedPageSize, responseData.getMetadata(), dbCountBefore);
         }
 
         @Test
@@ -91,7 +96,7 @@ class CountryControllerTest extends BaseControllerIT {
         void getAllCountries_InvalidPageNumber_Success() throws Exception {
             // given
             int currentPage = 5;
-            int expectedPageSize = (int) dbCountBefore;
+            int expectedPageSize = dbCountBefore.intValue();
 
             // when
             MockHttpServletResponse response =
@@ -100,7 +105,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-            validatePaginationMetaData(currentPage, expectedPageSize, responseData.getMetadata());
+            validatePaginationMetaData(currentPage, expectedPageSize, responseData.getMetadata(), dbCountBefore);
             assertThat(responseData.getContent()).isEmpty();
         }
 
@@ -118,7 +123,7 @@ class CountryControllerTest extends BaseControllerIT {
 
             // then
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-            validatePaginationMetaData(lastPageIndex, pageSize, responseData.getMetadata());
+            validatePaginationMetaData(lastPageIndex, pageSize, responseData.getMetadata(), dbCountBefore);
             validateResponseContent(lastPageIndex, pageSize, responseData.getContent());
         }
 
@@ -710,21 +715,5 @@ class CountryControllerTest extends BaseControllerIT {
                     .usingRecursiveComparison()
                     .isEqualTo(referenceCountryBeforeUpdate);
         }
-    }
-
-
-    /**
-     * Verifies pagination metadata against the request parameters and database state.
-     *
-     * @param currentPage Expected zero-based page index.
-     * @param expectedPageSize Expected number of elements per page.
-     * @param metadata The pagination details returned by the API.
-     */
-    void validatePaginationMetaData(int currentPage, int expectedPageSize, PaginationMetadata metadata) {
-        assertThat(metadata).isNotNull();
-        assertThat(metadata.getPageNumber()).isEqualTo(currentPage);
-        assertThat(metadata.getPageSize()).isEqualTo(expectedPageSize);
-        assertThat(metadata.getTotalElements()).isEqualTo(dbCountBefore);
-        assertThat(metadata.getTotalPages()).isEqualTo((int) Math.ceil((double) dbCountBefore / expectedPageSize));
     }
 }

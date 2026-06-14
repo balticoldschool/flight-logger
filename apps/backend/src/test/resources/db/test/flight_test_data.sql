@@ -1,0 +1,4 @@
+insert into flight (id, flight_date, origin_icao, destination_icao, airline_icao, flight_number, booking_class, duration_minutes, purpose, created_at, updated_at)
+values ('a1b2c3d4-0001-4000-8000-000000000001', '2026-06-11 08:30:00', 'EDDF', 'EDDM', 'DLH', 'LH100', 'ECONOMY', 55, 'BUSINESS', '2026-06-11 08:30:00', '2026-06-11 08:30:00');
+insert into flight (id, flight_date, origin_icao, destination_icao, airline_icao, flight_number, booking_class, duration_minutes, purpose, created_at, updated_at)
+values ('a1b2c3d4-0001-4000-8000-000000000002', '2026-06-12 14:15:00', 'EDDF', 'KIAH', 'CFG', 'DE2024', 'BUSINESS', 645, 'LEISURE', '2026-06-12 14:15:00', '2026-06-12 14:15:00');

@@ -1,0 +1,8 @@
+---
+
+type: string
+description: Travel purpose
+enum:
+  - BUSINESS
+  - LEISURE
+example: BUSINESS
