@@ -3,6 +3,7 @@ package com.flightlogger.backend.domain.flight.service;
 import com.flightlogger.backend.annotations.IntegrationTest;
 import com.flightlogger.backend.domain.flight.entity.FlightMapper;
 import com.flightlogger.backend.domain.flight.entity.FlightRepository;
+import com.flightlogger.backend.domain.flight.exception.FlightNotFoundException;
 import com.flightlogger.backend.model.FlightReadDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,8 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
+import java.util.UUID;
 
+import static com.flightlogger.backend.testdata.ErrorMessages.FLIGHTS_NOT_FOUND_MESSAGE;
+import static com.flightlogger.backend.testdata.FlightTestData.FRA_MUC_FLIGHT_READ_DTO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // Loads the flight data - this is not part of liquibase to avoid FK constraint violations
 @Sql(scripts = "classpath:db/test/flight_test_data.sql")
@@ -99,6 +104,33 @@ class FlightServiceImplTestIT {
             assertThat(page.getTotalPages()).isEqualTo(expectedTotalPages);
             assertThat(page.getNumber()).isEqualTo(expectedPageNumber);
             assertThat(page.getSize()).isEqualTo(expectedPageSize);
+        }
+    }
+
+    @Nested
+    @DisplayName("getFlightById")
+    class GetFlightById {
+
+        @Test
+        @DisplayName("Should return desired flight")
+        void getFlightById_returnsFlightDto_success() {
+            // when
+            final FlightReadDto result = flightService.getFlightById(FRA_MUC_FLIGHT_READ_DTO.getId());
+
+            // then
+            assertThat(FRA_MUC_FLIGHT_READ_DTO).isEqualTo(result);
+        }
+
+        @Test
+        @DisplayName("should throw FlightNotFoundException")
+        void getFlightById_invalidId_throwsFlightNotFoundException() {
+            //given
+            final UUID invalidId = new UUID(0L, 0L);
+
+            // when & then
+            assertThatThrownBy(() -> flightService.getFlightById(invalidId))
+                    .isInstanceOf(FlightNotFoundException.class)
+                    .hasMessage(FLIGHTS_NOT_FOUND_MESSAGE);
         }
     }
 }

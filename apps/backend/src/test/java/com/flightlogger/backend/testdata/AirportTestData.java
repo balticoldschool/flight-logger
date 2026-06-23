@@ -24,4 +24,12 @@ public class AirportTestData {
             .city(FRANKFURT_AIRPORT.getCity())
             .country(GERMANY_READ_DTO)
             .timezone(FRANKFURT_AIRPORT.getTimezone());
+
+    public static AirportReadDto MUNICH_AIRPORT_READ_DTO = new AirportReadDto()
+            .icao("EDDM")
+            .iata("MUC")
+            .name("Flughafen München Franz Josef Strauss")
+            .city("Munich")
+            .country(GERMANY_READ_DTO)
+            .timezone("Europe/Berlin");
 }
