@@ -1,0 +1,29 @@
+---
+
+parameters:
+  - $ref: "../../../common/params/uuid.yaml"
+
+get:
+  tags:
+    - Flights
+  summary: Get Flight by ID
+  operationId: getFlightById
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/flight-read-dto.yaml"
+    400:
+      description: Bad Request / invalid id
+      content:
+        application/json:
+          schema:
+            $ref: "../../../common/schemas/problem-details.yaml"
+    404:
+      description: Flight not found
+      content:
+        application/json:
+          schema:
+            $ref: "../../../common/schemas/problem-details.yaml"
