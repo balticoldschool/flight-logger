@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 public class FlightController implements FlightsApi {
@@ -23,5 +25,10 @@ public class FlightController implements FlightsApi {
         PaginationMetadata metadata = PaginationUtils.toMetaData(pagedFlightRead);
 
         return ResponseEntity.ok(new PagedFlightReadResponse(pagedFlightRead.getContent(), metadata));
+    }
+
+    @Override
+    public ResponseEntity<FlightReadDto> getFlightById(UUID id) {
+        return ResponseEntity.ok(flightService.getFlightById(id));
     }
 }

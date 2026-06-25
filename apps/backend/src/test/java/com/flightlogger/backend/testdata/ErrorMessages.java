@@ -17,6 +17,7 @@ public class ErrorMessages {
     public static final String COUNTRY_ALREADY_EXISTS = "Country with ISO code %s already exists";
     public static final String COUNTRY_CONFLICT_MESSAGE = "Country still used in a foreign key relation";
     public static final String COUNTRY_NOT_FOUND_MESSAGE = "Country with id %s does not exist";
+    public static final String FLIGHTS_NOT_FOUND_MESSAGE = "Flight with given id not found";
     public final static String INVALID_CITY_CODE_MESSAGE = "Invalid City";
     public final static String INVALID_IATA_CODE_MESSAGE = "Invalid IATA code";
     public final static String INVALID_ICAO_CODE_MESSAGE = "Invalid ICAO code";

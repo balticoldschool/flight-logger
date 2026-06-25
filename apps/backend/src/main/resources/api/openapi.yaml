@@ -24,3 +24,5 @@ paths:
     $ref: './domain/airport/paths/airportByIcao.yaml'
   /flights:
     $ref: './domain/flight/paths/flights.yaml'
+  /flights/{id}:
+    $ref: './domain/flight/paths/flightsById.yaml'
