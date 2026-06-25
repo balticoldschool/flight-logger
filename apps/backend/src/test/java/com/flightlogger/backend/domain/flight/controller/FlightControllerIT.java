@@ -22,9 +22,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.flightlogger.backend.testdata.ErrorMessages.*;
+import static com.flightlogger.backend.testdata.FlightTestData.FRA_MUC_FLIGHT_READ_DTO;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // Loads the flight data - this is not part of liquibase to avoid FK constraint violations
@@ -172,6 +174,75 @@ class FlightControllerIT extends BaseControllerIT {
             assertThat(responseContent).isNotNull();
             assertThat(responseContent).hasSize(expected.size());
             assertThat(responseContent).containsExactlyElementsOf(expected);
+        }
+    }
+
+    @Nested
+    @DisplayName("Get flight by id")
+    class GetFlightById {
+
+        @Test
+        @DisplayName("Should return desired Flight")
+        void getFlightById_Success() throws Exception {
+            // given
+            final FlightReadDto expectedFlight = FRA_MUC_FLIGHT_READ_DTO;
+
+            // when
+            MockHttpServletResponse response = performGetRequest(
+                    FlightsApi.PATH_GET_FLIGHT_BY_ID, expectedFlight.getId()
+            );
+            FlightReadDto flight = readResponseBody(response, FlightReadDto.class);
+
+            // then
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+            assertThat(flight).isEqualTo(expectedFlight);
+        }
+
+        // not found
+        @Test
+        @DisplayName("Should return 409 with corresponding message when no flight was found")
+        void getFlightById_FlightNotFound_ReturnNotFoundException() throws Exception {
+            // given
+            final UUID invalidId = new UUID(0L, 0L);
+
+            // when & then
+            performAndValidateException(
+                    performGetRequest(FlightsApi.PATH_GET_FLIGHT_BY_ID, invalidId),
+                    HttpStatus.NOT_FOUND,
+                    NOT_FOUND_ERROR_TITLE,
+                    FLIGHTS_NOT_FOUND_MESSAGE,
+                    dbCountBefore,
+                    flightRepository::count
+            );
+        }
+
+        // invalid id
+        @Nested
+        @DisplayName("Parameter Validation")
+        class ParameterValidation {
+
+            /// A list of invalid IDs
+            private static Stream<Arguments> invalidFlightIds() {
+                return Stream.of(
+                        Arguments.of("ID is invalid", "foo"),
+                        Arguments.of("ID is invalid", "123-abc-!!!-???"),
+                        Arguments.of("ID includes illegal character", "z85e30a9-8083-46a4-b743-bb74bf787c9c")
+                );
+            }
+
+            @ParameterizedTest(name = "Should return 400 bad request with corresponding errro message when {0}")
+            @MethodSource("invalidFlightIds")
+            void getFlightById_InvalidId_ReturnBadRequest(Object ignored, String id) throws Exception {
+                // when & then
+                performAndValidateException(
+                        performGetRequest(FlightsApi.PATH_GET_FLIGHT_BY_ID, id),
+                        HttpStatus.BAD_REQUEST,
+                        VALIDATION_ERROR_TITLE,
+                        INVALID_ID_MESSAGE,
+                        dbCountBefore,
+                        flightRepository::count
+                );
+            }
         }
     }
 }
