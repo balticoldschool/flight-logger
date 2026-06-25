@@ -15,7 +15,7 @@ public class FlightTestData {
 
     public static final FlightReadDto FRA_MUC_FLIGHT_READ_DTO = new FlightReadDto()
             .id(UUID.fromString("a1b2c3d4-0001-4000-8000-000000000001"))
-            .flightDate(LocalDateTime.parse("2026-06-11T10:30:00"))
+            .flightDate(LocalDateTime.parse("2026-06-11T08:30:00"))
             .origin(FRANKFURT_AIRPORT_READ_DTO)
             .destination(MUNICH_AIRPORT_READ_DTO)
             .airline(DLH_READ_DTO)
@@ -23,6 +23,6 @@ public class FlightTestData {
             .bookingClass(BookingClass.ECONOMY)
             .durationInMinutes(55)
             .purpose(TravelPurpose.BUSINESS)
-            .createdAt(LocalDateTime.parse("2026-06-11T10:30:00"))
-            .updatedAt(LocalDateTime.parse("2026-06-11T10:30:00"));
+            .createdAt(LocalDateTime.parse("2026-06-11T08:30:00"))
+            .updatedAt(LocalDateTime.parse("2026-06-11T08:30:00"));
 }
