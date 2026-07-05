@@ -1,0 +1,7 @@
+---
+
+type: integer
+description: Duration of the flight in minutes
+example: 120
+minimum: 1
+maximum: 1440

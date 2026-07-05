@@ -1,0 +1,29 @@
+---
+
+type: object
+required:
+  - flightDate
+  - originIcao
+  - destinationIcao
+  - airlineIcao
+  - flightNumber
+  - bookingClass
+  - durationInMinutes
+  - purpose
+properties:
+  flightDate:
+    $ref: "../../../common/schemas/datetime.yaml"
+  originIcao:
+    $ref: "../../../domain/airport/schemas/common/airport-icao.yaml"
+  destinationIcao:
+    $ref: "../../../domain/airport/schemas/common/airport-icao.yaml"
+  airlineIcao:
+    $ref: "../../../domain/airline/schemas/common/airline-icao.yaml"
+  flightNumber:
+    $ref: "./common/flight-number.yaml"
+  bookingClass:
+    $ref: "./common/booking-class.yaml"
+  durationInMinutes:
+    $ref: "./common/flight-duration.yaml"
+  purpose:
+    $ref: "./common/travel-purpose.yaml"

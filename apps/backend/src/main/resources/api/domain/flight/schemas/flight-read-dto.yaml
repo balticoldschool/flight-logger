@@ -29,9 +29,7 @@ properties:
   bookingClass:
     $ref: "./common/booking-class.yaml"
   durationInMinutes:
-    type: integer
-    description: Duration of the flight in minutes
-    example: 120
+    $ref: "./common/flight-duration.yaml"
   purpose:
     $ref: "./common/travel-purpose.yaml"
   createdAt:
