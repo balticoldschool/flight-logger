@@ -37,9 +37,7 @@ public class AirportServiceImpl implements AirportService {
     @Override
     @Transactional(readOnly = true)
     public AirportReadDto getAirportByIcao(String airportIcao) {
-        return airportRepository.findById(airportIcao)
-                .map(airportMapper::toDto)
-                .orElseThrow(() -> new AirportNotFoundException(airportIcao));
+        return airportMapper.toDto(getAirportEntityByIcao(airportIcao));
     }
 
     @Override
@@ -88,6 +86,12 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public void deleteAirportByIcao(String airportIcao) {
         airportRepository.deleteById(StringUtils.upperCase(airportIcao));
+    }
+
+    @Override
+    public Airport getAirportEntityByIcao(String icao) {
+        return airportRepository.findById(icao)
+                .orElseThrow(() -> new AirportNotFoundException(icao));
     }
 
     private void validateTimeZone(String timeZone) {

@@ -32,9 +32,7 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public AirlineReadDto getAirlineByIcao(String airlineIcao) {
-        return airlineRepository.findById(airlineIcao)
-                .map(airlineMapper::toDto)
-                .orElseThrow(() -> new AirlineNotFoundException(airlineIcao));
+       return airlineMapper.toDto(getAirlineEntityByIcao(airlineIcao));
     }
 
     @Override
@@ -81,5 +79,11 @@ public class AirlineServiceImpl implements AirlineService {
     @Transactional
     public void deleteAirline(String airlineIcao) {
         airlineRepository.deleteById(StringUtils.upperCase(airlineIcao));
+    }
+
+    @Override
+    public Airline getAirlineEntityByIcao(String icao) {
+        return airlineRepository.findById(icao)
+                .orElseThrow(() -> new AirlineNotFoundException(icao));
     }
 }

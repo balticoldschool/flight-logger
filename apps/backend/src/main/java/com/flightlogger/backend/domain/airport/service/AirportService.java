@@ -1,5 +1,6 @@
 package com.flightlogger.backend.domain.airport.service;
 
+import com.flightlogger.backend.domain.airport.entity.Airport;
 import com.flightlogger.backend.model.AirportCreateDto;
 import com.flightlogger.backend.model.AirportReadDto;
 import com.flightlogger.backend.model.AirportUpdateDto;
@@ -16,4 +17,6 @@ public interface AirportService {
     AirportReadDto updateAirportByIcao(String icao, AirportUpdateDto dto);
 
     void deleteAirportByIcao(String airportIcao);
+
+    Airport getAirportEntityByIcao(String icao);
 }

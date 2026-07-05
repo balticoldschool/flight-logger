@@ -3,6 +3,7 @@ package com.flightlogger.backend.domain.flight.controller;
 import com.flightlogger.backend.api.FlightsApi;
 import com.flightlogger.backend.common.utils.PaginationUtils;
 import com.flightlogger.backend.domain.flight.service.FlightService;
+import com.flightlogger.backend.model.FlightCreateDto;
 import com.flightlogger.backend.model.FlightReadDto;
 import com.flightlogger.backend.model.PagedFlightReadResponse;
 import com.flightlogger.backend.model.PaginationMetadata;
@@ -10,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -18,6 +21,19 @@ import java.util.UUID;
 public class FlightController implements FlightsApi {
 
     private final FlightService flightService;
+
+    @Override
+    public ResponseEntity<FlightReadDto> createFlight(FlightCreateDto flightCreateDto) {
+        final FlightReadDto savedFlight = flightService.saveFlight(flightCreateDto);
+
+        final URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{icao}")
+                .buildAndExpand(savedFlight.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(savedFlight);
+    }
 
     @Override
     public ResponseEntity<PagedFlightReadResponse> getAllFlights(Integer page, Integer pageSize) {

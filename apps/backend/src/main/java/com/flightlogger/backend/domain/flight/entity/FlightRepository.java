@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +20,12 @@ public interface FlightRepository extends JpaRepository<Flight, UUID> {
     @NonNull
     @EntityGraph(attributePaths = {"origin", "origin.country", "destination", "destination.country", "airline"})
     Optional<Flight> findById(@NonNull UUID id);
+
+    List<Flight> findByFlightDateBetween(LocalDateTime start, LocalDateTime end);
+
+    boolean existsByAirline_IcaoCodeAndFlightNumberAndFlightDateGreaterThanEqualAndFlightDateLessThan(
+            String airlineIcaoCode,
+            String flightNumber,
+            LocalDateTime dayStart,
+            LocalDateTime dayEnd);
 }
